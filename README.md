@@ -12,10 +12,10 @@ pojedynczej precyzji oraz wymierne.
 
 Poza dynamicznym typowaniem podobnym jak w przykładach niżej nie posiada
 (na razie) funkcji polimorficznych (to oznacza, że np. jeżeli istnieje wartość
-o nazwie "plus" określona zarówno na liczbach całkowitych, np. Int -> Int -> Int
-oraz na liczbach wymiernych Frac Int -> Frac Int -> Frac Int to musi
+o nazwie "plus" określona zarówno na liczbach całkowitych, np. `Int -> Int -> Int`
+oraz na liczbach wymiernych `Frac Int -> Frac Int -> Frac Int` to musi
 być określona również na wszystkich innych typach, tj być w rzeczywistości typu
-for A : * A -> A -> A).
+`for A : * A -> A -> A`).
 
 # Przykłady
 
@@ -53,6 +53,6 @@ Co można zapisać też inaczej:
         end
       end
 
-Różnica jest subtelna - w drugim przypadku loop'owi brakuje funkcji f.
-Jest tak ponieważ loop odnosi się zawsze do syntaktycznie najbliższego fun'a
+Różnica jest subtelna - w drugim przypadku `loop`owi brakuje funkcji `f`.
+Jest tak ponieważ loop odnosi się zawsze do syntaktycznie najbliższego `fun`a
 (właściwie będąc po prostu nazwą dla obecnej lambdy).
