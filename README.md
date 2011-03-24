@@ -21,37 +21,37 @@ for A : * A -> A -> A).
 
 ## Składanie funkcji
 
-  for A : *, B : *, C : *
-  let compose : (B -> C) -> (A -> B) -> (A -> C) =
-    fun g f x ->
-      g (f x)
-    end
+    for A : *, B : *, C : *
+    let compose : (B -> C) -> (A -> B) -> (A -> C) =
+      fun g f x ->
+        g (f x)
+      end
 
 ## Fold
 
-  for E : *, R : *
-  let fold-left : (R -> E -> R) -> R -> Stream E -> R =
-    fun f acc l ->
-      if empty l then
-        acc
-      else
-        loop f (f acc (head l)) (tail l)
-      end
-    end
-
-Co można zapisać też inaczej:
-
-  for E : *, R : *
-  let fold-left : (R -> E -> R) -> R -> List E -> R =
-    fun f ->
-      fun acc l ->
+    for E : *, R : *
+    let fold-left : (R -> E -> R) -> R -> Stream E -> R =
+      fun f acc l ->
         if empty l then
           acc
         else
-          loop (f acc (head l)) (tail l)
+          loop f (f acc (head l)) (tail l)
         end
       end
-    end
+
+Co można zapisać też inaczej:
+
+    for E : *, R : *
+    let fold-left : (R -> E -> R) -> R -> List E -> R =
+      fun f ->
+        fun acc l ->
+          if empty l then
+            acc
+          else
+            loop (f acc (head l)) (tail l)
+          end
+        end
+      end
 
 Różnica jest subtelna - w drugim przypadku loop'owi brakuje funkcji f.
 Jest tak ponieważ loop odnosi się zawsze do syntaktycznie najbliższego fun'a
