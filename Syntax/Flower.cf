@@ -11,13 +11,14 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 
-entrypoints Declaration, `Expr ;
+entrypoints Expr ;
 
 -- Declarations
 
+ADFor   . AbstractDeclaration ::= Quantifier Declaration ;
+ADLet   . AbstractDeclaration ::= Declaration ;
 QForAll . Quantifier  ::= "for" [Bound] ;
 DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ;
-DALet   . AbstractDeclaration ::= Quantifier Declaration ;
 
 -- Expressions
 
