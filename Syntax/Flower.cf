@@ -11,36 +11,43 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 
+entrypoints Declaration, `Expr ;
+
 -- Declarations
 
 QForAll . Quantifier  ::= "for" [Bound] ;
-DLet    . Declaration ::= "let" ValueIdent ":" Type "=" Expr ;
+DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ;
+DALet   . AbstractDeclaration ::= Quantifier Declaration ;
 
 -- Expressions
 
-ELoop   . Expr ::= "loop"
+ELoop   . Expr ::= "loop" ;
 ELambda . Expr ::= "fun" [Arg] "->" Expr "end" ;
 EIf     . Expr ::= "if" Expr "then" Expr "else" Expr "end" ;
-EApp    . Expr ::= Expr Expr2 ;
-_       . Expr ::= Expr2 ;
-_       . Expr2 ::= "(" Expr ")";
+EApp    . Expr ::= Expr Expr1 ;
+EIdent  . Expr ::= Ident ;
+coercions Expr 1 ;
+
+-- Arguments
+
+AIdent  . Arg ::= Ident ;
+(:[])   . [Arg] ::= Arg ;
+(:)     . [Arg] ::= Arg [Arg] ;
 
 -- Types
 
-TId     . Type ::= TypeIdent ;
-TFun    . Type ::= Type2 "->" Type ;
-_       . Type ::= Type2 ;
-_       . Type2 ::= "(" Type ")" ;
+TId     . Type ::= Ident ;
+TFun    . Type ::= Type1 "->" Type ;
+coercions Type 1 ;
 
 -- Kinds
 
 KId     . Kind ::= "*" ;
-KFun    . Kind ::= Kind2 "->" Kind ;
-_       . Kind ::= Kind2 ;
-_       . Kind2 ::= "(" Kind ")" ;
+KFun    . Kind ::= Kind1 "->" Kind ;
+coercions Kind 1 ;
 
 -- Type bounds
 
-Bound   . Bound ::= TypeIdent ":" Kind
+Bound   . Bound ::= Ident ":" Kind ;
 (:[])   . [Bound] ::= Bound ;
 (:)     . [Bound] ::= Bound "," [Bound] ;
