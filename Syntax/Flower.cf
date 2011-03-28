@@ -11,7 +11,7 @@
 --  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 --  GNU General Public License for more details.
 
-entrypoints Expr ;
+entrypoints AbstractDeclaration ;
 
 -- Declarations
 
@@ -22,11 +22,11 @@ DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ;
 
 -- Expressions
 
-ELoop   . Expr ::= "loop" ;
-ELambda . Expr ::= "fun" [Arg] "->" Expr "end" ;
-EIf     . Expr ::= "if" Expr "then" Expr "else" Expr "end" ;
+ELoop   . Expr1 ::= "loop" ;
+ELambda . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
+EIf     . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
 EApp    . Expr ::= Expr Expr1 ;
-EIdent  . Expr ::= Ident ;
+EIdent  . Expr1 ::= Ident ;
 coercions Expr 1 ;
 
 -- Arguments
@@ -37,14 +37,14 @@ AIdent  . Arg ::= Ident ;
 
 -- Types
 
-TId     . Type ::= Ident ;
 TFun    . Type ::= Type1 "->" Type ;
+TId     . Type1 ::= Ident ;
 coercions Type 1 ;
 
 -- Kinds
 
-KId     . Kind ::= "*" ;
 KFun    . Kind ::= Kind1 "->" Kind ;
+KId     . Kind1 ::= "*" ;
 coercions Kind 1 ;
 
 -- Type bounds
