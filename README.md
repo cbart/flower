@@ -37,7 +37,7 @@ Dostępne są dwa rodzaje komentarzy:
 ## Fold
 
     for E : *, R : *
-    let fold-left : (R -> E -> R) -> R -> Stream E -> R =
+    let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
       fun f acc l ->
         if empty l then
           acc
@@ -49,7 +49,7 @@ Dostępne są dwa rodzaje komentarzy:
 Co można zapisać też inaczej:
 
     for E : *, R : *
-    let fold-left : (R -> E -> R) -> R -> List E -> R =
+    let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
       fun f ->
         fun acc l ->
           if empty l then
