@@ -22,29 +22,29 @@ DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ;
 
 -- Expressions
 
-ELoop   . Expr1 ::= "loop" ;
-ELambda . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
-EIf     . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
-EApp    . Expr ::= Expr Expr1 ;
-EIdent  . Expr1 ::= Ident ;
+ExprLoop    . Expr1 ::= "loop" ;
+ExprFun     . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
+ExprIf      . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
+ExprApp     . Expr ::= Expr Expr1 ;
+ExprId      . Expr1 ::= Ident ;
 coercions Expr 1 ;
 
 -- Arguments
 
-AIdent  . Arg ::= Ident ;
+ArgId   . Arg ::= Ident ;
 (:[])   . [Arg] ::= Arg ;
 (:)     . [Arg] ::= Arg [Arg] ;
 
 -- Types
 
-TFun    . Type ::= Type1 "->" Type ;
-TId     . Type1 ::= Ident ;
+TypeFun . Type ::= Type1 "->" Type ;
+TypeId  . Type1 ::= Ident ;
 coercions Type 1 ;
 
 -- Kinds
 
-KFun    . Kind ::= Kind1 "->" Kind ;
-KId     . Kind1 ::= "*" ;
+KindFun . Kind ::= Kind1 "->" Kind ;
+KindAst . Kind1 ::= "*" ;
 coercions Kind 1 ;
 
 -- Type bounds
