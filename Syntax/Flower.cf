@@ -38,8 +38,9 @@ ArgId   . Arg ::= Ident ;
 -- Types
 
 TypeFun . Type ::= Type1 "->" Type ;
-TypeId  . Type1 ::= Ident ;
-coercions Type 1 ;
+TypeApp . Type1 ::= Type1 Type2 ;
+TypeId  . Type2 ::= Ident ;
+coercions Type 2 ;
 
 -- Kinds
 
