@@ -31,8 +31,14 @@
 
 Dodatkowo dostępne są trzy konstruktory typów (wszystkie określone na dowolnych
 typach rodzaju `*`):
+
+
   * `Maybe A` określający możliwość braku wyniku.
+
+
   * `Stream A` określający leniwy strumień danych.
+
+
   * `Pair A B` będący odpowiednikiem iloczynu kartezjańskiego.
 
 
