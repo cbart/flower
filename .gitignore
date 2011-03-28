@@ -1,0 +1,12 @@
+*.bak
+
+*.hi
+*.o
+
+*.aux
+*.log
+
+*.dvi
+*.ps
+
+TestFlower
