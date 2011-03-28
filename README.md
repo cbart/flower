@@ -118,7 +118,7 @@ Oraz następujące selektory:
 
 
         for A : *, B : *
-        maybe : Maybe A -> (A -> B) -> B -> B
+        maybe : (A -> B) -> B -> Maybe A -> B
 
 
   * `Stream A`
