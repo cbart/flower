@@ -17,6 +17,13 @@ oraz na liczbach wymiernych `Frac Int -> Frac Int -> Frac Int` to musi
 być określona również na wszystkich innych typach, tj być w rzeczywistości typu
 `for A : * A -> A -> A`).
 
+## Komentarze
+
+Dostępne są dwa rodzaje komentarzy:
+
+    # Komentarz do końca linii
+    (# Komentarz ograniczony #)
+
 # Przykłady
 
 ## Składanie funkcji

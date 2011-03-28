@@ -52,3 +52,8 @@ coercions Kind 1 ;
 Bound   . Bound ::= Ident ":" Kind ;
 (:[])   . [Bound] ::= Bound ;
 (:)     . [Bound] ::= Bound "," [Bound] ;
+
+-- Comments
+
+comment "#" ;
+comment "(#" "#)" ;
