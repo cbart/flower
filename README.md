@@ -130,12 +130,16 @@ Oraz następujące selektory:
         for A : *
         tail : Stream A -> Maybe (Stream A)
 
+        for A : *, B : *
+        stream : (A -> Stream A -> B) -> B -> Stream A -> B
+
 
   * `Pair A B`
 
 
         for A : *, B : *
         fst : Pair A B -> A
+
         for A : *, B : *
         snd : Pair A B -> B
 
