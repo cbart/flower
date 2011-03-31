@@ -13,13 +13,13 @@
   * `Int` liczba całkowita, przykłady:
 
 
-        0 -1 42
+        0 -1 42 0x4f 0b0100 0o77
 
 
   * `Float` liczba zmiennopozycyjna pojedynczej precyzji, przykłady:
 
 
-        1.0 1e-19 0.001
+        1.0 1.0e-19 0.001 6.022e+23
 
 
   * `Bool` wartość logiczna o konstruktorach:
