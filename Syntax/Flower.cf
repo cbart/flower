@@ -30,7 +30,15 @@ ExprId      . Expr1 ::= Ident ;
 ExprConst   . Expr1 ::= Constant ;
 coercions Expr 1 ;
 
--- Constants
+-- Floating Point Constants
+
+ConstSci    . Constant  ::= CSci ;
+ConstFix    . Constant  ::= CFix ;
+
+position token CSci (digit '.' digit+ 'e' ('+' | '-') digit+) ;
+position token CFix (digit+ '.' digit+) | (digit+ '.') | ('.' digit+) ;
+
+-- Integer Constants
 
 ConstHex    . Constant  ::= CHex ;
 ConstDec    . Constant  ::= CDec ;
