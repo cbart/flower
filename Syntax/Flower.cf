@@ -46,10 +46,10 @@ ConstOct    . Constant  ::= COct ;
 ConstBin    . Constant  ::= CBin ;
 ConstInt    . Constant  ::= CInt ;
 
-position token CHex ('0' 'x' digit+) ;
+position token CHex ('0' 'x' ["0123456789abcdef"]+) ;
 position token CDec ('0' 'd' digit+) ;
-position token COct ('0' 'o' digit+) ;
-position token CBin ('0' 'b' digit+) ;
+position token COct ('0' 'o' ["01234567"]+) ;
+position token CBin ('0' 'b' ["01"]+) ;
 position token CInt (digit+) ;
 
 -- Arguments
