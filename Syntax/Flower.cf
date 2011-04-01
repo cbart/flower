@@ -15,67 +15,67 @@ entrypoints AbstractDeclaration ;
 
 -- Declarations
 
-ADFor   . AbstractDeclaration ::= Quantifier Declaration ;
+-- ADFor   . AbstractDeclaration ::= Quantifier Declaration ;
 ADLet   . AbstractDeclaration ::= Declaration ;
-QForAll . Quantifier  ::= "for" [Bound] ;
+-- QForAll . Quantifier  ::= "for" [Bound] ;
 DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ;
 
 -- Expressions
 
-ExprLoop    . Expr1 ::= "loop" ;
-ExprFun     . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
-ExprIf      . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
-ExprApp     . Expr ::= Expr Expr1 ;
-ExprId      . Expr1 ::= Ident ;
+-- ExprLoop    . Expr1 ::= "loop" ;
+-- ExprFun     . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
+-- ExprIf      . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
+-- ExprApp     . Expr ::= Expr Expr1 ;
+-- ExprId      . Expr1 ::= Ident ;
 ExprConst   . Expr1 ::= Constant ;
 coercions Expr 1 ;
 
 -- Floating Point Constants
 
-ConstSci    . Constant  ::= CSci ;
-ConstFix    . Constant  ::= CFix ;
+-- ConstSci    . Constant  ::= CSci ;
+-- ConstFix    . Constant  ::= CFix ;
 
-position token CSci digit '.' digit+ 'e' ('+' | '-') digit+ ;
-position token CFix (digit+ '.' digit+) | (digit+ '.') | ('.' digit+) ;
+-- position token CSci digit '.' digit+ 'e' ('+' | '-') digit+ ;
+-- position token CFix (digit+ '.' digit+) | (digit+ '.') | ('.' digit+) ;
 
 -- Integer Constants
 
-ConstHex    . Constant  ::= CHex ;
-ConstDec    . Constant  ::= CDec ;
-ConstOct    . Constant  ::= COct ;
-ConstBin    . Constant  ::= CBin ;
+-- ConstHex    . Constant  ::= CHex ;
+-- ConstDec    . Constant  ::= CDec ;
+-- ConstOct    . Constant  ::= COct ;
+-- ConstBin    . Constant  ::= CBin ;
 ConstInt    . Constant  ::= CInt ;
 
-position token CHex ('0' 'x' ["0123456789abcdef"]+) ;
-position token CDec ('0' 'd' digit+) ;
-position token COct ('0' 'o' ["01234567"]+) ;
-position token CBin ('0' 'b' ["01"]+) ;
+-- position token CHex ('0' 'x' ["0123456789abcdef"]+) ;
+-- position token CDec ('0' 'd' digit+) ;
+-- position token COct ('0' 'o' ["01234567"]+) ;
+-- position token CBin ('0' 'b' ["01"]+) ;
 position token CInt (digit+) ;
 
 -- Arguments
 
-ArgId   . Arg ::= Ident ;
-(:[])   . [Arg] ::= Arg ;
-(:)     . [Arg] ::= Arg [Arg] ;
+-- ArgId   . Arg ::= Ident ;
+-- (:[])   . [Arg] ::= Arg ;
+-- (:)     . [Arg] ::= Arg [Arg] ;
 
 -- Types
 
-TypeFun . Type ::= Type1 "->" Type ;
-TypeApp . Type1 ::= Type1 Type2 ;
+-- TypeFun . Type ::= Type1 "->" Type ;
+-- TypeApp . Type1 ::= Type1 Type2 ;
 TypeId  . Type2 ::= Ident ;
 coercions Type 2 ;
 
 -- Kinds
 
-KindFun . Kind ::= Kind1 "->" Kind ;
-KindAst . Kind1 ::= "*" ;
-coercions Kind 1 ;
+-- KindFun . Kind ::= Kind1 "->" Kind ;
+-- KindAst . Kind1 ::= "*" ;
+-- coercions Kind 1 ;
 
 -- Type bounds
 
-Bound   . Bound ::= Ident ":" Kind ;
-(:[])   . [Bound] ::= Bound ;
-(:)     . [Bound] ::= Bound "," [Bound] ;
+-- Bound   . Bound ::= Ident ":" Kind ;
+-- (:[])   . [Bound] ::= Bound ;
+-- (:)     . [Bound] ::= Bound "," [Bound] ;
 
 -- Comments
 
