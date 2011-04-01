@@ -35,7 +35,7 @@ coercions Expr 1 ;
 ConstSci    . Constant  ::= CSci ;
 ConstFix    . Constant  ::= CFix ;
 
-position token CSci (digit '.' digit+ 'e' ('+' | '-') digit+) ;
+position token CSci digit '.' digit+ 'e' ('+' | '-') digit+ ;
 position token CFix (digit+ '.' digit+) | (digit+ '.') | ('.' digit+) ;
 
 -- Integer Constants
