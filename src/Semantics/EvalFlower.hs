@@ -7,7 +7,7 @@ module Semantics.EvalFlower
 import Prelude hiding ( lookup )
 import Data.Map
 import Control.Monad
-import Control.Monad.Reader
+import Control.Monad.State
 import Control.Monad.Identity
 
 import Syntax.ErrM
@@ -17,12 +17,12 @@ import Semantics.TypesFlower
 
 
 type Bindings = Map String Value
-type Computation a = ReaderT Bindings Err a
+type Computation a = StateT Bindings Err a
 
 eval = evalProgram
 
 evalProgram :: Program -> Err Program
-evalProgram program = runReaderT (programEvaluator program) baseBindings
+evalProgram program = evalStateT (programEvaluator program) baseBindings
 
 baseBindings :: Bindings
 baseBindings = empty
