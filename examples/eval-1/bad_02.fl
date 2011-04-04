@@ -1,0 +1,2 @@
+let x : Int = not_an_integer
+;;
