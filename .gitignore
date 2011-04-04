@@ -9,4 +9,8 @@
 *.dvi
 *.ps
 
+src/Syntax/*.*
+
 TestFlower
+
+ifl
