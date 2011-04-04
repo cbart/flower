@@ -1,5 +1,7 @@
 module Semantics.TypesFlower
-( Value
+( Value( IntV )
 ) where
 
-data Value = IntV Integer
+import Syntax.AbsFlower
+
+data Value = IntV Expr
