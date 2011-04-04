@@ -13,7 +13,7 @@
   * `Int` liczba całkowita, przykłady:
 
 
-        0 -1 42 0x4f 0b0100 0o77
+        0 1 42 0x4f 0b0100 0o77
 
 
   * `Float` liczba zmiennopozycyjna pojedynczej precyzji, przykłady:
