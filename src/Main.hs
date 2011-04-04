@@ -13,10 +13,12 @@ import Syntax.ErrM
 import Semantics.EvalFlower
 
 type Lexer = [Char] -> [Token]
-type Parser a = [Token] -> Err a
+type Parser = [Token] -> Err Program
+type Evaluator = Program -> Err Program
 
 flowerLexer = myLexer
 flowerParser = pProgram
+flowerEvaluator = eval
 
 main :: IO ()
 main = do
@@ -37,13 +39,13 @@ run sourceCode =
         Ok abstractSyntax -> showAbstractSyntax abstractSyntax
         Bad errorMessage -> showError errorMessage
     where
-        parseFlower = parse flowerLexer flowerParser
+        parseFlower = parse flowerLexer flowerParser flowerEvaluator
 
-parse :: (Print a, Show a) => Lexer -> Parser a -> [Char] -> Err a
-parse lexer parser sourceCode = do
+parse :: Lexer -> Parser -> Evaluator -> [Char] -> Err Program
+parse lexer parser evaluator sourceCode = do
     tokens <- return $ lexer sourceCode
     abstractSyntax <- parser tokens
-    return abstractSyntax
+    evaluator abstractSyntax
 
 showAbstractSyntax :: (Print a, Show a) => a -> IO ()
 showAbstractSyntax abstractSyntax = do

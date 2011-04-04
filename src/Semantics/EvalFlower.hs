@@ -1,5 +1,9 @@
-module Semantics.EvalFlower where
+module Semantics.EvalFlower
+( eval
+) where
 
+import Syntax.ErrM
 import Syntax.AbsFlower
 
--- Evaluation module for Flower
+eval :: Program -> Err Program
+eval = return
