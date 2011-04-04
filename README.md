@@ -228,6 +228,7 @@ Co można zapisać też inaczej:
             (cons h (quickSort (filter (gt h) t)))
         end
         nil
+    ;;
 
 
 Różnica jest subtelna - w drugim przypadku `loop`owi brakuje funkcji `f`.
