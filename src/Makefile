@@ -5,10 +5,11 @@ all: syntax
 	$(HC) --make -i. -o ifl Main.hs
 
 syntax: Flower.cf
-	bnfc -haskell -p Syntax Flower.cf && cd Syntax && make
+	bnfc -haskell -p Syntax Flower.cf
+	(cd Syntax; make)
 
 clean:
-	cd Syntax && make clean
+	(cd Syntax; make clean)
 	rm -f *.hi *.o TestFlower TestFlower.hs
 
 .SUFFIXES: .o .hs .hi .lhs .hc .s
