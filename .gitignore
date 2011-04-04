@@ -12,5 +12,6 @@
 src/Syntax/*.*
 
 TestFlower
+TestFlower.hs
 
 ifl

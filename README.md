@@ -182,6 +182,7 @@ Dostępne są dwa rodzaje komentarzy:
       fun g f x ->
         g (f x)
       end
+    ;;
 
 
 ## Fold
@@ -196,6 +197,7 @@ Dostępne są dwa rodzaje komentarzy:
           loop f (f acc (head l)) (tail l)
         end
       end
+    ;;
 
 
 Co można zapisać też inaczej:
@@ -212,6 +214,20 @@ Co można zapisać też inaczej:
           end
         end
       end
+    ;;
+
+
+## QuickSort
+
+
+    let quickSort : Stream Int -> Stream Int =
+      stream
+        fun h t ->
+          concat
+            (quickSort (filter (leq h) t))
+            (cons h (quickSort (filter (gt h) t)))
+        end
+        nil
 
 
 Różnica jest subtelna - w drugim przypadku `loop`owi brakuje funkcji `f`.
