@@ -56,6 +56,7 @@ Typy prymitywne definiują następujące funkcje:
         mul : Int -> Int -> Int
         quot : Int -> Int -> Maybe Int
         mod : Int -> Int -> Maybe Int
+        neg : Int -> Int
         eq : Int -> Int -> Bool
         leq : Int -> Int -> Bool
         float : Int -> Float
@@ -68,6 +69,7 @@ Typy prymitywne definiują następujące funkcje:
         subf : Float -> Float -> Float
         mulf : Float -> Float -> Float
         divf : Float -> Float -> Maybe Float
+        negf : Float -> Float
         eqf : Float -> Float -> Bool
         leqf : Float -> Float -> Bool
         floor : Float -> Int
