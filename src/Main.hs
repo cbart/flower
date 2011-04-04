@@ -1,3 +1,7 @@
 module Main where
 
--- Main module
+import Syntax.AbsFlower
+import Semantics.EvalFlower
+
+main :: IO ()
+main = putStrLn "OK"

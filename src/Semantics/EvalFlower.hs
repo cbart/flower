@@ -1,4 +1,4 @@
-module EvalFlower where
+module Semantics.EvalFlower where
 
 import Syntax.AbsFlower
 
