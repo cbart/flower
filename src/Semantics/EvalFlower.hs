@@ -45,10 +45,44 @@ declarationEvaluator declaration@(DLet anIdentifier aType anExpression) = do
     return declaration
 
 check :: Expr -> Type -> Computation ()
-check _ (TypeId (Ident typeIdentifier)) =
-    if typeIdentifier == "Int" then return () else fail $ "Type mismatch - expected Int, got: " ++ typeIdentifier
+check anExpr aType = do
+    expected <- typeName aType
+    actual <- deduceType anExpr
+    if expected == actual then return () else typeError expected actual
+
+typeName :: Type -> Computation String
+typeName (TypeId (Ident aName)) = return aName
+
+deduceType :: Expr -> Computation String
+deduceType (ExprConst _) = return "Int"
+deduceType (ExprId identifier) = boundValueType identifier
 
 addValue :: Ident -> Expr -> Computation ()
 addValue identifier expression = do
     bindings <- get
     put $ insert identifier (IntV expression) bindings
+
+boundValueType :: Ident -> Computation String
+boundValueType identifier = do
+    value <- getValue identifier
+    deduceType value
+
+getValue :: Ident -> Computation Expr
+getValue anIdentifier@(Ident aName) = do
+    bindings <- get
+    maybe
+        (nameError aName)
+        (return . omitType)
+        (lookup anIdentifier bindings)
+
+omitType :: Value -> Expr
+omitType (IntV expr) = expr
+
+typeError :: String -> String -> Computation a
+typeError expectedType gotType =
+    fail $ concat ["Type mismatch - expected: ", expectedType,
+        " got: ", gotType, "!"]
+
+nameError :: String -> Computation a
+nameError aName =
+    fail $ concat ["Could not find name \"", aName, "\"", "!"]
