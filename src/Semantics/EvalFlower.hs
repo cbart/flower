@@ -14,10 +14,8 @@ import Syntax.ErrM
 import Syntax.AbsFlower
 
 import Semantics.TypesFlower
-
-
-type Bindings = Map Ident Value
-type Evaluation a = StateT Bindings Err a
+import Semantics.EvalBase
+import Semantics.Error
 
 eval = evalProgram
 
@@ -77,12 +75,3 @@ getValue anIdentifier@(Ident aName) = do
 
 omitType :: Value -> Expr
 omitType (IntV expr) = expr
-
-typeError :: String -> String -> Evaluation a
-typeError expectedType gotType =
-    fail $ concat ["Type mismatch - expected: ", expectedType,
-        " got: ", gotType, "!"]
-
-nameError :: String -> Evaluation a
-nameError aName =
-    fail $ concat ["Could not find name \"", aName, "\"", "!"]
