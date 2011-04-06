@@ -30,7 +30,7 @@ DLet    . Declaration ::= "let" Ident ":" Type "=" Expr ";;" ;
 
 -- ExprLoop    . Expr1 ::= "loop" ;
 -- ExprFun     . Expr1 ::= "fun" [Arg] "->" Expr "end" ;
--- ExprIf      . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
+ExprIf      . Expr1 ::= "if" Expr "then" Expr "else" Expr "end" ;
 -- ExprApp     . Expr ::= Expr Expr1 ;
 ExprId      . Expr1 ::= Ident ;
 ExprConst   . Expr1 ::= Constant ;
