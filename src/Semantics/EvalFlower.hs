@@ -9,7 +9,6 @@ import Control.Monad
 import Syntax.ErrM
 import Syntax.AbsFlower
 
-import Semantics.TypesFlower
 import Semantics.EvalBase
 import Semantics.Primitives
 import Semantics.Error
@@ -37,5 +36,5 @@ absDeclEval absDecl@(ADLet decl) = do
 declEval :: Evaluator Declaration
 declEval decl@(DLet anIdent aType anExpr) = do
     check anExpr aType
-    bindValue anIdent anExpr
+    bind anIdent aType anExpr
     return decl

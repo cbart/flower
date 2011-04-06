@@ -15,7 +15,7 @@ check anExpr expected = do
 
 deduceType :: Expr -> Evaluation Type
 deduceType (ExprConst _) = return $ simpleType "Int"
-deduceType (ExprId identifier) = getValue identifier >>= deduceType
+deduceType (ExprId anIdent) = getType anIdent
 deduceType (ExprIf boolExpr thenExpr elseExpr) = do
     check boolExpr $ simpleType "Bool"
     thenType <- deduceType thenExpr
