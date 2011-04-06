@@ -4,8 +4,6 @@ module Semantics.EvalFlower
 
 {-# LANGUAGE FlexibleInstances #-}
 
-import Prelude hiding ( lookup )
-import Data.Map
 import Control.Monad
 import Control.Monad.State
 import Control.Monad.Identity
@@ -15,15 +13,15 @@ import Syntax.AbsFlower
 
 import Semantics.TypesFlower
 import Semantics.EvalBase
+import Semantics.Primitives
 import Semantics.Error
+import Semantics.State
+import Semantics.TypeChecking
 
 eval = evalProgram
 
 evalProgram :: Program -> Err Program
-evalProgram program = evalStateT (programEvaluator program) baseBindings
-
-baseBindings :: Bindings
-baseBindings = empty
+evalProgram program = evalStateT (programEvaluator program) primitives
 
 programEvaluator :: Program -> Evaluation Program
 programEvaluator (Program declarations) =
@@ -39,39 +37,5 @@ abstractDeclarationEvaluator abstractDeclaration@(ADLet aDeclaration) = do
 declarationEvaluator :: Declaration -> Evaluation Declaration
 declarationEvaluator declaration@(DLet anIdentifier aType anExpression) = do
     check anExpression aType
-    addValue anIdentifier anExpression
+    bindValue anIdentifier anExpression
     return declaration
-
-check :: Expr -> Type -> Evaluation ()
-check anExpr aType = do
-    expected <- typeName aType
-    actual <- deduceType anExpr
-    if expected == actual then return () else typeError expected actual
-
-typeName :: Type -> Evaluation String
-typeName (TypeId (Ident aName)) = return aName
-
-deduceType :: Expr -> Evaluation String
-deduceType (ExprConst _) = return "Int"
-deduceType (ExprId identifier) = boundValueType identifier
-
-addValue :: Ident -> Expr -> Evaluation ()
-addValue identifier expression = do
-    bindings <- get
-    put $ insert identifier (IntV expression) bindings
-
-boundValueType :: Ident -> Evaluation String
-boundValueType identifier = do
-    value <- getValue identifier
-    deduceType value
-
-getValue :: Ident -> Evaluation Expr
-getValue anIdentifier@(Ident aName) = do
-    bindings <- get
-    maybe
-        (nameError aName)
-        (return . omitType)
-        (lookup anIdentifier bindings)
-
-omitType :: Value -> Expr
-omitType (IntV expr) = expr

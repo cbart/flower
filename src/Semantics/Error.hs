@@ -5,6 +5,7 @@ module Semantics.Error
 
 import Semantics.EvalBase
 
+
 typeError :: String -> String -> Evaluation a
 typeError expectedType gotType =
     fail $ concat ["Type mismatch - expected: ", expectedType,
