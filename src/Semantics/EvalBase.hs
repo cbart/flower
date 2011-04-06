@@ -1,6 +1,7 @@
 module Semantics.EvalBase
 ( Bindings
 , Evaluation
+, runEvaluation
 ) where
 
 import Data.Map
@@ -13,3 +14,6 @@ import Semantics.TypesFlower
 
 type Bindings = Map Ident Value
 type Evaluation a = StateT Bindings Err a
+
+runEvaluation :: Evaluation a -> Bindings -> Err a
+runEvaluation = evalStateT

@@ -5,8 +5,6 @@ module Semantics.EvalFlower
 {-# LANGUAGE FlexibleInstances #-}
 
 import Control.Monad
-import Control.Monad.State
-import Control.Monad.Identity
 
 import Syntax.ErrM
 import Syntax.AbsFlower
@@ -20,22 +18,24 @@ import Semantics.TypeChecking
 
 eval = evalProgram
 
+type Evaluator a = a -> Evaluation a
+
 evalProgram :: Program -> Err Program
-evalProgram program = evalStateT (programEvaluator program) primitives
+evalProgram program = runEvaluation (programEval program) primitives
 
-programEvaluator :: Program -> Evaluation Program
-programEvaluator (Program declarations) =
+programEval :: Evaluator Program
+programEval (Program decls) =
     liftM Program $ sequence $ do
-        d <- declarations
-        return $ abstractDeclarationEvaluator d
+        d <- decls
+        return $ absDeclEval d
 
-abstractDeclarationEvaluator :: AbstractDeclaration -> Evaluation AbstractDeclaration
-abstractDeclarationEvaluator abstractDeclaration@(ADLet aDeclaration) = do
-    declarationEvaluator aDeclaration
-    return abstractDeclaration
+absDeclEval :: Evaluator AbstractDeclaration
+absDeclEval absDecl@(ADLet decl) = do
+    declEval decl
+    return absDecl
 
-declarationEvaluator :: Declaration -> Evaluation Declaration
-declarationEvaluator declaration@(DLet anIdentifier aType anExpression) = do
-    check anExpression aType
-    bindValue anIdentifier anExpression
-    return declaration
+declEval :: Evaluator Declaration
+declEval decl@(DLet anIdent aType anExpr) = do
+    check anExpr aType
+    bindValue anIdent anExpr
+    return decl
