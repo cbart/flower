@@ -190,9 +190,9 @@ Dostępne są dwa rodzaje komentarzy:
   * Stałe będące napisami, t.j. wartości typu `Stream Char` mogą być zapisywane tradycyjne:
 
 
-    cons 'A' (cons 'S' (cons 'D' nil))
+        cons 'A' (cons 'S' (cons 'D' nil))
 
-    "ASD"
+        "ASD"
 
 
 # Przykłady
