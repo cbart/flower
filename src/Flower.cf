@@ -51,7 +51,8 @@ coercions Expr 1 ;
 -- ConstOct    . Constant  ::= COct ;
 -- ConstBin    . Constant  ::= CBin ;
 ConstInt    . Constant  ::= CInt ;
--- ConstStr    . Constant  ::= String ;
+-- ConstStrCh  . Constant  ::= String ;
+-- ConstChar   . Constant  ::= Char ;
 
 -- position token CHex ('0' 'x' ["0123456789abcdef"]+) ;
 -- position token CDec ('0' 'd' digit+) ;

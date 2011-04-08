@@ -29,6 +29,12 @@
         false : Bool
 
 
+  * `Char` znak:
+
+
+        'a' 'x'
+
+
 Dodatkowo dostępne są trzy konstruktory typów (wszystkie określone na dowolnych
 typach rodzaju `*`):
 
@@ -81,6 +87,13 @@ Typy prymitywne definiują następujące funkcje:
 
         and : Bool -> Bool -> Bool
         not : Bool -> Bool
+
+
+  * `Char`
+
+
+        upper : Char -> Char
+        lower : Char -> Char
 
 
 Wbudowane konstruktory typów posiadają następujące konstruktory wartości:
@@ -169,6 +182,17 @@ Dostępne są dwa rodzaje komentarzy:
 
     # Komentarz do końca linii
     (# Komentarz ograniczony #)
+
+
+# Lukier syntaktyczny
+
+
+  * Stałe będące napisami, t.j. wartości typu `Stream Char` mogą być zapisywane tradycyjne:
+
+
+    cons 'A' (cons 'S' (cons 'D' nil))
+
+    "ASD"
 
 
 # Przykłady
