@@ -54,9 +54,7 @@ p'TypeFun :: Parser u Type
 p'TypeFun = p'TypeApp `chainr1` (o'Arrow TypeFun)
 
 p'TypeApp :: Parser u Type
-p'TypeApp = do
-    types <- many1 p'TypeSolid
-    return $ foldr1 TypeApp types
+p'TypeApp = p'TypeSolid `chainl1` (o'App TypeApp)
 
 p'TypeSolid :: Parser u Type
 p'TypeSolid = parens p'TypeApp <|> p'TypeId
@@ -78,18 +76,11 @@ p'KindId = do
     p'Symbol SymAsterisk
     return KindId
 
-o'Arrow :: (a -> a -> a) -> Parser u (a -> a -> a)
-o'Arrow op = do
-    p'Symbol SymArrow
-    return op
-
 p'Expr :: Parser u Expr
 p'Expr = p'ExprApp <?> "expression"
 
 p'ExprApp :: Parser u Expr
-p'ExprApp = do
-    exprs <- many1 p'ExprSolid
-    return $ foldr1 ExprApp exprs
+p'ExprApp = p'ExprSolid `chainl1` (o'App ExprApp)
 
 p'ExprSolid :: Parser u Expr
 p'ExprSolid = parens p'ExprApp <|> p'ExprFun <|> p'ExprIf <|> p'ExprIdent <|> p'ExprConst
@@ -122,6 +113,14 @@ p'ExprIdent = ExprIdent <$> p'Ident
 
 p'ExprConst :: Parser u Expr
 p'ExprConst = ExprConst <$> p'Const
+
+o'Arrow :: (a -> a -> a) -> Parser u (a -> a -> a)
+o'Arrow op = do
+    p'Symbol SymArrow
+    return op
+
+o'App :: (a -> a -> a) -> Parser u (a -> a -> a)
+o'App = return
 
 parens :: Parser u a -> Parser u a
 parens = between (p'Symbol SymBracketLeft) (p'Symbol SymBracketRight)
