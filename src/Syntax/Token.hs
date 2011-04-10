@@ -7,7 +7,7 @@ data Token =
   | TokConst Const
   | TokIdent Ident
   | TokKeyword Keyword
-  deriving (Show, Eq)
+  deriving (Eq)
 
 data Symbol =
     SymColon
@@ -17,13 +17,13 @@ data Symbol =
   | SymBracketRight
   | SymAsterisk
   | SymComma
-  deriving (Show, Eq)
+  deriving (Eq)
 
 data Const =
     ConstInt Integer
   | ConstChar Char
   | ConstString [Char]
-  deriving (Show, Eq)
+  deriving (Eq)
 
 type Ident =
     String
@@ -37,4 +37,4 @@ data Keyword =
   | KwLet
   | KwLoop
   | KwThen
-  deriving (Show, Eq)
+  deriving (Eq)

@@ -3,6 +3,7 @@ where
 
 
 import Syntax.Token (Const, Ident)
+import Syntax.PrettyPrinter
 
 
 data Prog =
