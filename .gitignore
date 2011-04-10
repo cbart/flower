@@ -9,8 +9,6 @@
 *.dvi
 *.ps
 
-src/Syntax/*.*
-
 TestFlower
 TestFlower.hs
 
