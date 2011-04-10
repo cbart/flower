@@ -19,6 +19,7 @@ data Expr =
   | ExprApp Expr Expr
   | ExprIdent Ident
   | ExprConst Const
+  | ExprLoop
     deriving (Show)
 
 data Type =

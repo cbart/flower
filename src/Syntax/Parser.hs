@@ -15,22 +15,22 @@ parser :: Parser u Prog
 parser = Prog <$> many1 p'Decl
 
 p'Decl :: Parser u Decl
-p'Decl = p'DeclFor <|> p'DeclLet
+p'Decl = p'DeclFor <|> p'DeclLet <?> "declaration"
 
 p'DeclFor :: Parser u Decl
 p'DeclFor = do
     p'Keyword KwFor
-    bounds <- p'DeclBounds
+    bounds <- p'DeclBounds <?> "type bounds"
     p'DeclLet >>= addBounds bounds
 
 p'DeclLet :: Parser u Decl
 p'DeclLet = do
     p'Keyword KwLet
-    anIdent <- p'Ident
+    anIdent <- p'Ident <?> "value identifier"
     p'Symbol SymColon
-    aType <- p'Type
+    aType <- p'Type <?> "value type"
     p'Symbol SymEqual
-    anExpr <- p'Expr
+    anExpr <- p'Expr <?> "value"
     return $ Let [] anIdent aType anExpr
 
 p'DeclBounds :: Parser u [(Ident, Kind)]
@@ -38,9 +38,9 @@ p'DeclBounds = p'Bound `sepBy1` p'Symbol SymComma
 
 p'Bound :: Parser u (Ident, Kind)
 p'Bound = do
-    anIdent <- p'Ident
-    p'Symbol SymComma
-    aKind <- p'Kind
+    anIdent <- p'Ident <?> "type identifier"
+    p'Symbol SymColon
+    aKind <- p'Kind <?> "kind"
     return (anIdent, aKind)
 
 addBounds :: [(Ident, Kind)] -> Decl -> Parser u Decl
@@ -63,7 +63,7 @@ p'TypeId :: Parser u Type
 p'TypeId = TypeId <$> p'Ident
 
 p'Kind :: Parser u Kind
-p'Kind = p'KindFun <?> "kind"
+p'Kind = p'KindFun
 
 p'KindFun :: Parser u Kind
 p'KindFun = p'KindSolid `chainr1` (o'Arrow KindFun)
@@ -83,14 +83,19 @@ p'ExprApp :: Parser u Expr
 p'ExprApp = p'ExprSolid `chainl1` (o'App ExprApp)
 
 p'ExprSolid :: Parser u Expr
-p'ExprSolid = parens p'ExprApp <|> p'ExprFun <|> p'ExprIf <|> p'ExprIdent <|> p'ExprConst
+p'ExprSolid = parens p'Expr
+    <|> p'ExprFun
+    <|> p'ExprIf
+    <|> p'ExprIdent
+    <|> p'ExprConst
+    <|> p'ExprLoop
 
 p'ExprFun :: Parser u Expr
 p'ExprFun = do
     p'Keyword KwFun
-    args <- p'Args
+    args <- p'Args <?> "argument identifiers"
     p'Symbol SymArrow
-    expr <- p'Expr
+    expr <- p'Expr <?> "function result value"
     p'Keyword KwEnd
     return $ ExprFun args expr
 
@@ -100,11 +105,11 @@ p'Args = many1 p'Ident
 p'ExprIf :: Parser u Expr
 p'ExprIf = do
     p'Keyword KwIf
-    ifExpr <- p'Expr
+    ifExpr <- p'Expr <?> "boolean predicate"
     p'Keyword KwThen
-    thenExpr <- p'Expr
+    thenExpr <- p'Expr <?> "then-expression"
     p'Keyword KwElse
-    elseExpr <- p'Expr
+    elseExpr <- p'Expr <?> "else-expression"
     p'Keyword KwEnd
     return $ ExprIf ifExpr thenExpr elseExpr
 
@@ -113,6 +118,9 @@ p'ExprIdent = ExprIdent <$> p'Ident
 
 p'ExprConst :: Parser u Expr
 p'ExprConst = ExprConst <$> p'Const
+
+p'ExprLoop :: Parser u Expr
+p'ExprLoop = p'Keyword KwLoop >> return ExprLoop
 
 o'Arrow :: (a -> a -> a) -> Parser u (a -> a -> a)
 o'Arrow op = do

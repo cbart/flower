@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Syntax.Lexer.Primitives
 where
 
@@ -48,10 +49,11 @@ octal = T.octal tokenLexer
 whiteSpace :: Lexer u ()
 whiteSpace = T.whiteSpace tokenLexer
 
-applyMapping :: (String -> Lexer u ()) -> [(String, a)] -> Lexer u a
-applyMapping reservedLexer = choice . map gen
+applyMapping :: forall u a . (String -> Lexer u ()) -> [(String, a)] -> Lexer u a
+applyMapping reservedLexer = choice . map makeLexer
     where
-        gen (aString, aMapped) = do
+        makeLexer :: (String, a) -> Lexer u a
+        makeLexer (aString, aMapped) = do
             reservedLexer aString
             return aMapped
 

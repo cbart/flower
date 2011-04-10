@@ -14,8 +14,7 @@ lexer :: Lexer u [Token]
 lexer = do { tokens <- token `sepBy1` whiteSpace; eof; return tokens }
 
 token :: Lexer u Token
-token =
-        TokSymbol <$> symbol
+token = TokSymbol <$> symbol
     <|> TokConst <$> constant
     <|> TokIdent <$> identifier
     <|> TokKeyword <$> keyword
