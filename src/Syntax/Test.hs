@@ -14,10 +14,10 @@ import Syntax.Abstract
 import Syntax.Parser
 
 
-lexFlower :: String -> Either ParseError [Token]
+lexFlower :: String -> Either ParseError [TokenPos]
 lexFlower = parse lexer "test"
 
-parseFlower :: [Token] -> Either ParseError Prog
+parseFlower :: [TokenPos] -> Either ParseError Prog
 parseFlower = parse parser "test"
 
 testFlower :: String -> Either ParseError Prog

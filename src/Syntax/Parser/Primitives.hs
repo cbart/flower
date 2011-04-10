@@ -14,9 +14,10 @@ import Text.Parsec.Prim (ParsecT, token, (<?>))
 import Text.Parsec.Pos (SourcePos, newPos)
 import Syntax.Abstract
 import Syntax.Token
+import Syntax.Lexer (TokenPos)
 
 
-type Parser u a = ParsecT [Token] u Identity a
+type Parser u a = ParsecT [TokenPos] u Identity a
 
 
 p'Ident :: Parser u Ident
@@ -32,7 +33,7 @@ p'Symbol :: Symbol -> Parser u Symbol
 p'Symbol = matchToken . equals TokSymbol
 
 matchToken :: (Token -> Maybe a) -> Parser u a
-matchToken = token show tokenPos
+matchToken matcher = token show tokenPos (matcher . fst)
 
 isIdent :: Token -> Maybe Ident
 isIdent (TokIdent ident) = return ident
@@ -47,5 +48,5 @@ equals constr value token
     | token == constr value = return value
     | otherwise = fail $ "expected " ++ (show $ constr value)
 
-tokenPos :: Token -> SourcePos
-tokenPos _ = newPos "no file" 0 0  -- FIXME
+tokenPos :: TokenPos -> SourcePos
+tokenPos = snd
