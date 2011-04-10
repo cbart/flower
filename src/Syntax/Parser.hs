@@ -48,7 +48,7 @@ addBounds bounds (Let [] anIdent aType anExpr) =
     return $ Let bounds anIdent aType anExpr
 
 p'Type :: Parser u Type
-p'Type = p'TypeApp
+p'Type = p'TypeFun
 
 p'TypeFun :: Parser u Type
 p'TypeFun = p'TypeApp `chainr1` (o'Arrow TypeFun)
