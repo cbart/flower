@@ -1,12 +1,18 @@
-module Syntax.Test where
+module Syntax.Test
+( lexFlower
+, parseFlower
+, testFlower
+) where
 
-import Control.Monad
-import Text.Parsec.Prim
-import Text.Parsec.Error
-import Syntax.Abstract
-import Syntax.Lexer
+
+import Control.Monad ((>=>))
+import Text.Parsec.Prim (parse)
+import Text.Parsec.Error (ParseError)
 import Syntax.Token
+import Syntax.Lexer
+import Syntax.Abstract
 import Syntax.Parser
+
 
 lexFlower :: String -> Either ParseError [Token]
 lexFlower = parse lexer "test"
@@ -14,4 +20,5 @@ lexFlower = parse lexer "test"
 parseFlower :: [Token] -> Either ParseError Prog
 parseFlower = parse parser "test"
 
-flowerParser = lexFlower >=> parseFlower
+testFlower :: String -> Either ParseError Prog
+testFlower = lexFlower >=> parseFlower

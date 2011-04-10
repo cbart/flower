@@ -1,4 +1,6 @@
-module Syntax.Token where
+module Syntax.Token
+where
+
 
 data Token =
     TokSymbol Symbol

@@ -1,13 +1,13 @@
-module Syntax.Lexer where
+module Syntax.Lexer
+( lexer
+) where
 
 
 import Control.Applicative ((<$>))
-import Control.Monad.Identity
-import Text.Parsec
-import Text.Parsec.Prim
+import Text.Parsec.Prim ((<|>))
+import Text.Parsec.Combinator (sepBy1, eof)
 import Syntax.Token
-import Syntax.Language
-import Syntax.BaseLexer
+import Syntax.Lexer.Primitives
 
 
 lexer :: Lexer u [Token]

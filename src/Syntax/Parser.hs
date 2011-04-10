@@ -1,17 +1,18 @@
-module Syntax.Parser where
+module Syntax.Parser
+( parser
+) where
 
 
 import Control.Applicative ((<$>), (<*>))
-import Control.Monad
-import Text.Parsec.Prim
+import Text.Parsec.Prim ((<|>), (<?>))
 import Text.Parsec.Combinator
 import Syntax.Abstract
 import Syntax.Token
-import Syntax.BaseParser
+import Syntax.Parser.Primitives
 
 
 parser :: Parser u Prog
-parser = liftM Prog $ many1 p'Decl
+parser = Prog <$> many1 p'Decl
 
 p'Decl :: Parser u Decl
 p'Decl = p'DeclFor <|> p'DeclLet

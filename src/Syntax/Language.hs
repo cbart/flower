@@ -1,4 +1,8 @@
-module Syntax.Language where
+module Syntax.Language
+( flowerDef
+, keywordMapping
+, symbolMapping
+) where
 
 
 import Text.ParserCombinators.Parsec

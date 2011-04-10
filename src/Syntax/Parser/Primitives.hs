@@ -1,16 +1,17 @@
 {-# LANGUAGE FlexibleContexts, FlexibleInstances, MultiParamTypeClasses #-}
-module Syntax.BaseParser where
+module Syntax.Parser.Primitives
+where
 
 
-import Control.Monad.Identity
+import Control.Monad.Identity (Identity)
 import Text.Parsec.String hiding (Parser)
-import qualified Text.Parsec.Prim as ParsecPrim
-import qualified Text.Parsec.Pos as ParsecPos
+import Text.Parsec.Prim (ParsecT, token)
+import Text.Parsec.Pos (SourcePos, newPos)
 import Syntax.Abstract
 import Syntax.Token
 
 
-type Parser u a = ParsecPrim.ParsecT [Token] u Identity a
+type Parser u a = ParsecT [Token] u Identity a
 
 
 p'Ident :: Parser u Ident
@@ -47,7 +48,7 @@ liftEquals tokenConstructor value = do
           | otherwise = Nothing
 
 matchToken :: (Token -> Maybe Token) -> Parser u Token
-matchToken = ParsecPrim.token show tokenPos
+matchToken = token show tokenPos
 
-tokenPos :: Token -> ParsecPos.SourcePos
-tokenPos _ = ParsecPos.newPos "no file" 0 0  -- FIXME
+tokenPos :: Token -> SourcePos
+tokenPos _ = newPos "no file" 0 0  -- FIXME

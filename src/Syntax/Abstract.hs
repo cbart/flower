@@ -1,4 +1,6 @@
-module Syntax.Abstract where
+module Syntax.Abstract
+where
+
 
 import Syntax.Token (Const, Ident)
 

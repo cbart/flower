@@ -1,8 +1,15 @@
-module BaseLexer where
+module Syntax.Lexer.Primitives
+where
 
 
+import Control.Applicative ((<$>))
+import Control.Monad.Identity (Identity)
+import Text.Parsec.Char (char)
+import Text.Parsec.Combinator (choice)
+import Text.Parsec.Prim (ParsecT, (<|>), (<?>), try)
 import qualified Text.ParserCombinators.Parsec.Token as T
 import Syntax.Token
+import Syntax.Language
 
 
 type Lexer u a = ParsecT String u Identity a
@@ -12,7 +19,7 @@ symbol :: Lexer u Symbol
 symbol = applyMapping reservedOp symbolMapping <?> "reserved symbol"
 
 constant :: Lexer u Const
-constant = liftM ConstInt constantInt <?> "literal"
+constant = ConstInt <$> constantInt <?> "literal"
 
 constantInt :: Lexer u Integer
 constantInt = (try (char '0') >> (hexadecimal <|> octal)) <|> decimal
