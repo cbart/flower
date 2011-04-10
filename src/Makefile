@@ -1,12 +1,8 @@
 HC=ghc
 HC_OPTS=-cpp $(EXTRA_HC_OPTS)
 
-all: syntax
+all:
 	$(HC) --make -i. -o ifl Main.hs
-
-syntax: Flower.cf
-	bnfc -haskell -p Syntax Flower.cf
-	(cd Syntax; make)
 
 clean:
 	(cd Syntax; make clean)

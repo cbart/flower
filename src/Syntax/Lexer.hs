@@ -6,7 +6,7 @@ module Syntax.Lexer
 
 import Control.Applicative ((<$>))
 import Text.Parsec.Prim ((<|>), getPosition)
-import Text.Parsec.Combinator (sepBy1, eof)
+import Text.Parsec.Combinator (sepEndBy1, eof)
 import Text.Parsec.Pos (SourcePos)
 import Syntax.Token
 import Syntax.Lexer.Primitives
@@ -16,7 +16,10 @@ type TokenPos = (Token, SourcePos)
 
 
 lexer :: Lexer u [TokenPos]
-lexer = do { tokens <- withPos token `sepBy1` whiteSpace; eof; return tokens }
+lexer = do
+    tokens <- withPos token `sepEndBy1` whiteSpace
+    eof
+    return tokens
 
 withPos :: Lexer u a -> Lexer u (a, SourcePos)
 withPos aLexer = do

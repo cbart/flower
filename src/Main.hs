@@ -1,63 +1,47 @@
 module Main where
 
-import IO ( stdin, hGetContents )
-import System ( getArgs, getProgName )
 
-import Syntax.LexFlower
-import Syntax.ParFlower
-import Syntax.SkelFlower
-import Syntax.PrintFlower
-import Syntax.AbsFlower
-import Syntax.ErrM
+import Prelude hiding (lex)
+import IO (stdin, hGetContents)
+import System (getArgs, getProgName)
+import Control.Monad
+import Text.Parsec.Error
+import qualified Text.Parsec.Prim as P
+import Syntax.Abstract
+import Syntax.Lexer
+import Syntax.Parser
 
-import Semantics.EvalFlower
-
-type Lexer = [Char] -> [Token]
-type Parser = [Token] -> Err Program
-type Evaluator = Program -> Err Program
-
-flowerLexer = myLexer
-flowerParser = pProgram
-flowerEvaluator = eval
 
 main :: IO ()
 main = do
     args <- getArgs
     case args of
-        [] -> hGetContents stdin >>= run
-        fileName -> mapM_ runFile fileName
+        [] -> hGetContents stdin >>= run "stdin"
+        fileNames -> mapM_ runFile fileNames
 
 runFile :: FilePath -> IO ()
 runFile filePath = do
     putStrLn filePath
     fileContent <- readFile filePath
-    run fileContent
+    run filePath fileContent
 
-run :: String -> IO ()
-run sourceCode =
-    case parseFlower sourceCode of
-        Ok abstractSyntax -> showAbstractSyntax abstractSyntax
-        Bad errorMessage -> showError errorMessage
+run :: String -> String -> IO ()
+run fileName sourceCode = do
+    putStrLn ">FLOWER<"
+    putStrLn "File content:"
+    putStrLn $ show sourceCode
+    case lex sourceCode of
+        Left error -> do
+            putStrLn $ show error
+        Right tokens -> do
+            putStrLn "\nTokens:"
+            putStrLn $ show tokens
+            case parse tokens of
+                Left error -> putStrLn $ show error
+                Right _ -> putStrLn "Parse successful!"
     where
-        parseFlower = parse flowerLexer flowerParser flowerEvaluator
+        lex :: String -> Either ParseError [TokenPos]
+        lex = P.parse lexer fileName
 
-parse :: Lexer -> Parser -> Evaluator -> [Char] -> Err Program
-parse lexer parser evaluator sourceCode = do
-    tokens <- return $ lexer sourceCode
-    abstractSyntax <- parser tokens
-    evaluator abstractSyntax
-
-showAbstractSyntax :: (Print a, Show a) => a -> IO ()
-showAbstractSyntax abstractSyntax = do
-    putStrLn "\nParse Successful!\n"
-    showTree abstractSyntax
-
-showError :: String -> IO ()
-showError errorMessage = do
-    putStrLn "\nParse Failed!\n"
-    putStrLn errorMessage
-
-showTree :: (Show a, Print a) => a -> IO ()
-showTree tree = do
-    putStrLn $ "\n[Abstract Syntax]\n\n" ++ show tree
-    putStrLn $ "\n[Linearized tree]\n\n" ++ printTree tree
+        parse :: [TokenPos] -> Either ParseError Prog
+        parse = P.parse parser fileName
