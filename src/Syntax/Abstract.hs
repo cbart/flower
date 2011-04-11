@@ -3,16 +3,14 @@ where
 
 
 import Syntax.Token (Const, Ident)
-import Syntax.PrettyPrinter
+import Syntax.PrettyPrinter.Token
 
 
 data Prog =
     Prog [Decl]
-    deriving (Show)
 
 data Decl =
     Let [(Ident, Kind)] Ident Type Expr
-    deriving (Show)
 
 data Expr =
     ExprFun [Ident] Expr
@@ -21,15 +19,12 @@ data Expr =
   | ExprIdent Ident
   | ExprConst Const
   | ExprLoop
-    deriving (Show)
 
 data Type =
     TypeId Ident
   | TypeFun Type Type
   | TypeApp Type Type
-    deriving (Show)
 
 data Kind =
     KindId
   | KindFun Kind Kind
-    deriving (Show)

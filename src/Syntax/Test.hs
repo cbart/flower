@@ -9,7 +9,7 @@ import Control.Monad ((>=>))
 import Text.Parsec.Prim (parse)
 import Text.Parsec.Error (ParseError)
 import Syntax.Token
-import Syntax.PrettyPrinter
+import Syntax.PrettyPrinter.Token
 import Syntax.Lexer
 import Syntax.Abstract
 import Syntax.Parser

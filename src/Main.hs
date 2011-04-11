@@ -10,6 +10,8 @@ import qualified Text.Parsec.Prim as P
 import Syntax.Abstract
 import Syntax.Lexer
 import Syntax.Parser
+import Semantics.Primitives
+import Semantics.Evaluator
 
 
 main :: IO ()
@@ -38,7 +40,11 @@ run fileName sourceCode = do
             putStrLn $ show tokens
             case parse tokens of
                 Left error -> putStrLn $ show error
-                Right _ -> putStrLn "Parse successful!"
+                Right abstract -> do
+                    putStrLn "Parse successful!"
+                    case eval abstract of
+                        Left error -> putStrLn $ show error
+                        Right _ -> putStrLn "Evaluation successful!"
     where
         lex :: String -> Either ParseError [TokenPos]
         lex = P.parse lexer fileName

@@ -2,10 +2,9 @@ module Semantics.Primitives
 ( primitives
 ) where
 
-import Prelude hiding ( lookup )
-import Data.Map
 
-import Semantics.EvalBase
+import Semantics.Bindings
+
 
 primitives :: Bindings
 primitives = empty

@@ -1,5 +1,4 @@
-module Syntax.PrettyPrinter
-where
+module Syntax.PrettyPrinter.Token where
 
 import Syntax.Token
 import Syntax.Language (keywordMapping, symbolMapping)

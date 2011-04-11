@@ -6,7 +6,8 @@ all:
 
 clean:
 	(cd Syntax; make clean)
-	rm -f *.hi *.o TestFlower TestFlower.hs
+	(cd Semantics; make clean)
+	rm -f *.hi *.o */*.hi */*.o */*/*.hi */*/*.o TestFlower TestFlower.hs
 
 .SUFFIXES: .o .hs .hi .lhs .hc .s
 .PHONY: all syntax clean

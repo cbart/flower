@@ -1,21 +1,23 @@
 module Semantics.Error
 ( typeMismatchError
 , nameError
+, loopError
 ) where
 
-import Syntax.AbsFlower
 
-import Semantics.EvalBase
+import Syntax.Token (Ident)
+import Syntax.Abstract
+import Syntax.PrettyPrinter.Abstract
 
 
-typeMismatchError :: Type -> Type -> Evaluation a
+typeMismatchError :: Monad m => Type -> Type -> m a
 typeMismatchError expectedType gotType =
-    fail $ concat ["Type mismatch - expected: ", typeName expectedType,
-        " got: ", typeName gotType, "!"]
+    fail $ concat ["Type mismatch - expected: ", show expectedType,
+        " got: ", show gotType, "!"]
 
-nameError :: String -> Evaluation a
+nameError :: Monad m => Ident -> m a
 nameError aName =
     fail $ concat ["Could not find name \"", aName, "\"", "!"]
 
-typeName :: Type -> String
-typeName (TypeId (Ident aTypeName)) = aTypeName
+loopError :: Monad m => m a
+loopError = fail $ "Usage of \"loop\" outside of \"fun\" is forbidden!"
