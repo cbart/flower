@@ -13,28 +13,30 @@ import Semantics.Error
 import Semantics.Bindings (Bindings, lookupType)
 import Semantics.Type.Primitives hiding (maybe)
 
+-- Reading (read-only) environment
+-- Yielding conditions for further type unification
 type TypeEvaluator a =
-    ReaderT
-        Bindings
-        (WriterT
-            [Condition]
-            Identity
-        )
-        a
+    ReaderT Bindings
+    (WriterT [Condition]
+    Identity
+    ) a
+
+-- With given assumptions (first) we would like an expression (second)
+-- to be of given type (third) with given loop type (fourth)
 type Goal = ([Assumption], Expr, Type, Maybe Type)
+
+-- We assume that given identifier (first) is of given type (second)
 type Assumption = (Ident, Type)
+
+-- We require following two types (first, second) to be equal
 type Condition = (Type, Type)
+
 type GoalEvaluator a =
-    StateT
-        ([Assumption], Type, Maybe Type, Int)
-        (ReaderT
-            Bindings
-            (WriterT
-                [Condition]
-                Identity
-            )
-        )
-        a
+    StateT ([Assumption], Type, Maybe Type, Int)
+    (ReaderT Bindings
+    (WriterT [Condition]
+    Identity
+    )) a
 
 
 infixl 2 ====
@@ -86,7 +88,7 @@ runGoalEvaluator goalEvaluator assumptions expectedType loopType =
 
 runAction :: Expr -> GoalEvaluator [Goal]
 runAction (ExprFun args expr) = do
-    setLoop
+    loopThis
     resultType <- runFunction args expr
     goals [(expr, resultType)]
 runAction (ExprIf ifExpr thenExpr elseExpr) = do
@@ -101,11 +103,11 @@ runAction (ExprApp fun arg) = do
     funType ==== argType ~> resultType
     goals [(arg, argType), (fun, funType)]
 runAction (ExprIdent ident) = do
-    identType <- getIdentType ident
+    identType <- identType ident
     expected $=== identType
     noGoals
 runAction (ExprConst const) = do
-    constType <- getConstType const
+    constType <- constType const
     expected $=== constType
     noGoals
 runAction (ExprLoop) = do
@@ -131,8 +133,8 @@ loop = do { l <- maybeLoop ; maybe loopError return l }
 maybeLoop :: GoalEvaluator (Maybe Type)
 maybeLoop = do { (_, _, l, _) <- get ; return l }
 
-setLoop :: GoalEvaluator ()
-setLoop = do
+loopThis :: GoalEvaluator ()
+loopThis = do
     loopType <- expected
     modify $ \(as, e, _, i) -> (as, e, Just loopType, i)
 
@@ -151,8 +153,8 @@ only _ = do { (a, _, _, _) <- get ; return a }  -- FIXME
 noGoals :: GoalEvaluator [Goal]
 noGoals = goals []
 
-getIdentType :: Ident -> GoalEvaluator Type
-getIdentType ident = do
+identType :: Ident -> GoalEvaluator Type
+identType ident = do
     assumedType <- lookupAssumedType ident
     envType <- lookupEnvType ident
     maybe (nameError ident) (return) (assumedType `orElse` envType)
@@ -166,10 +168,10 @@ assumed = do { (a, _, _, _) <- get ; return a }
 lookupEnvType :: Ident -> GoalEvaluator (Maybe Type)
 lookupEnvType ident = ask >>= return . lookupType ident
 
-getConstType :: Const -> GoalEvaluator Type
-getConstType (ConstInt _) = return int
-getConstType (ConstChar _) = return char
-getConstType (ConstString _) = return $ stream char
+constType :: Const -> GoalEvaluator Type
+constType (ConstInt _) = return int
+constType (ConstChar _) = return char
+constType (ConstString _) = return $ stream char
 
 expected :: GoalEvaluator Type
 expected = do { (_, e, _, _) <- get; return e }
