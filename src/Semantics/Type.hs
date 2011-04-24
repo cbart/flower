@@ -12,20 +12,18 @@ import Semantics.Type.Goal
 
 
 check :: Expr -> Type -> [(Ident, Kind)] -> Evaluator Type
-check expr _ _ = do
-    b <- get
-    unify $ resolve b expr
+check expr _ _ = get >>= return . unify . resolve expr
 
-resolve :: Bindings -> Expr -> [Condition]
-resolve b = resolveStep b . resolveStart
+resolve :: Expr -> Bindings -> [Condition]
+resolve = resolveStep . resolveStart
 
 resolveStart :: Expr -> ([Task], [Condition], TypeIndex)
 resolveStart e = ([(e, startEnv)], [], typeIndex0)
 
-resolveStep :: Bindings -> ([Task], [Condition], TypeIndex) -> [Condition]
-resolveStep _ ([], cs, _) = cs
-resolveStep b ((t:ts), cs, i) = resolveStep b (ts ++ ts', cs ++ cs', i')
+resolveStep :: ([Task], [Condition], TypeIndex) -> Bindings -> [Condition]
+resolveStep ([], cs, _) _ = cs
+resolveStep ((t:ts), cs, i) b = resolveStep (ts ++ ts', cs ++ cs', i') b
     where (ts', cs', i') = solveTask b t i
 
-unify :: [Condition] -> Evaluator Type
-unify [] = return int
+unify :: [Condition] -> Type
+unify _ = int  -- FIXME
