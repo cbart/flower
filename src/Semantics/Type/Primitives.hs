@@ -5,6 +5,16 @@ import Syntax.Token (Ident)
 import Syntax.Abstract
 
 
+-- Counter used for generating free variables in type deduction
+type TypeIndex = Int
+
+-- Starting type index
+typeIndex0 :: TypeIndex
+typeIndex0 = 0
+
+typeVar :: TypeIndex -> Type
+typeVar i = TypeId $ concat ["$", show i]
+
 int :: Type
 int = simple "Int"
 
