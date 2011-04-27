@@ -11,11 +11,12 @@ import Syntax.Token
 import Syntax.Abstract
 import Semantics.Bindings hiding (lookup)
 import Semantics.Error
+import Semantics.Error.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 
 
-solveTask :: Bindings -> Task -> TypeIndex -> ([Task], [Condition], TypeIndex)
-solveTask b t@(e, _) i = runIdentity $ runGoalT (solve e) b t i
+solveTask :: Bindings -> Task -> TypeIndex -> Either EvaluationError ([Task], [Condition], TypeIndex)
+solveTask b t@(e, _) i = runGoalT (solve e) b t i
 
 -- Solving function
 solve :: Monad m => Expr -> GoalT m ()
@@ -65,6 +66,7 @@ runGoalT g b (expr, env) i = do
 -- Check the type of an expression given the environment.
 type Task = (Expr, Env)
 
+-- Yields a task of proving that `e` is of type `t`.
 infixl 2 <:>
 (<:>) :: Monad m => Expr -> Type -> GoalT m ()
 e <:> t = do { ((as, _, l), _) <- get ; tell ([(e, (as, t, l))], []) }

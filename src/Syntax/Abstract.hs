@@ -23,7 +23,7 @@ data Expr =
 data Type =
     TypeId Ident
   | TypeFun Type Type
-  | TypeApp Type Type
+  | TypeApp Type Type deriving (Eq)
 
 data Kind =
     KindId
