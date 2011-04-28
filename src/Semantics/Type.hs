@@ -25,10 +25,10 @@ check expr t _ = do
     return t'
 
 eval' :: Expr -> Evaluator Type
-eval' = infer' >=> unify' >=> rename
+eval' = infer' >=> unify >=> rename
 
 infer' :: Expr -> Evaluator [Condition]
 infer' e = get >>= castEither . infer e
 
-unify' :: [Condition] -> Evaluator Type
-unify' = castEither . unify (typeVar typeIndex0)
+unify :: [Condition] -> Evaluator Type
+unify = runUnifyT unification $ TypeId "$0"
