@@ -1,4 +1,4 @@
-module Semantics.Type.Goal where
+module Semantics.Type.Goal (infer, Condition) where
 
 
 import Data.Foldable (foldlM)
@@ -14,6 +14,18 @@ import Semantics.Error
 import Semantics.Error.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 
+
+infer :: Expr -> Bindings -> Either EvaluationError [Condition]
+infer = inferenceStep . inferenceBase
+
+inferenceStep :: ([Task], [Condition], TypeIndex) -> Bindings -> Either EvaluationError [Condition]
+inferenceStep ([], cs, _) _ = return cs
+inferenceStep ((t:ts), cs, i) b = do
+    (ts', cs', i') <- solveTask b t i
+    inferenceStep (ts ++ ts', cs ++ cs', i') b
+
+inferenceBase :: Expr -> ([Task], [Condition], TypeIndex)
+inferenceBase e = ([(e, startEnv)], [], typeIndex0)
 
 solveTask :: Bindings -> Task -> TypeIndex -> Either EvaluationError ([Task], [Condition], TypeIndex)
 solveTask b t@(e, _) i = runGoalT (solve e) b t i
