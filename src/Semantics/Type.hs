@@ -13,22 +13,25 @@ import Semantics.Error
 import Semantics.Bindings
 import Semantics.Evaluator.Primitives
 import Semantics.Type.Primitives
-import Semantics.Type.Goal
+import Semantics.Type.Infer
 import Semantics.Type.Unify
 import Semantics.Type.Rename
 
 
 check :: Expr -> Type -> [(Ident, Kind)] -> Evaluator Type
 check expr t _ = do
-    t' <- eval' expr
-    t == t' `or` typeMismatchError t t'
-    return t'
+    t' <- typeOf expr
+    t == t' `or` typeMismatchError t t'  -- FIXME t <= t'
+    return t
 
-eval' :: Expr -> Evaluator Type
-eval' = infer' >=> unify >=> rename
+typeOf :: Expr -> Evaluator Type
+typeOf = infer >=> unify >=> rename
 
-infer' :: Expr -> Evaluator [Condition]
-infer' e = get >>= castEither . infer e
+infer :: Expr -> Evaluator [Condition]
+infer e = do
+    b <- get
+    runInferT inference b (e, env) typeIndex0
+    where env = ([], typeVar typeIndex0, Nothing)
 
 unify :: [Condition] -> Evaluator Type
 unify = runUnifyT unification $ TypeId "$0"

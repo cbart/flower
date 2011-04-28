@@ -13,7 +13,7 @@ import Util.Monad
 import Syntax.Abstract
 import Semantics.Error
 import Semantics.Error.Primitives
-import Semantics.Type.Goal
+import Semantics.Type.Infer
 
 
 type UnifyT e m = ReaderT Type (StateT [Condition] (ErrorT e m))
