@@ -3,29 +3,32 @@
 module Semantics.Type (check) where
 
 
-import Prelude hiding (or)
 import Control.Monad
 import Control.Monad.State
 import Util.Monad
 import Syntax.Token (Ident)
 import Syntax.Abstract
 import Semantics.Error
-import Semantics.Bindings
+import Semantics.Bindings hiding (lookup)
 import Semantics.Evaluator.Primitives
-import Semantics.Type.Primitives
+import Semantics.Type.Primitives hiding (maybe)
 import Semantics.Type.Infer
 import Semantics.Type.Unify
 import Semantics.Type.Rename
+import Semantics.Type.Teq
 
 
 check :: Expr -> Type -> [(Ident, Kind)] -> Evaluator Type
-check expr t _ = do
+check expr t v = do
     t' <- typeOf expr
-    t == t' `or` typeMismatchError t t'  -- FIXME t <= t'
+    t' <: (t, v)
     return t
 
+(<:) :: Monad m => InferredType -> (DeclaredType, [(Ident, Kind)]) -> m ()
+inf <: (dec, var) = runTeqT (match inf dec) var []
+
 typeOf :: Expr -> Evaluator Type
-typeOf = infer >=> unify >=> rename
+typeOf = infer >=> unify
 
 infer :: Expr -> Evaluator [Condition]
 infer e = do

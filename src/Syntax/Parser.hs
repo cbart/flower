@@ -4,6 +4,7 @@ module Syntax.Parser
 
 
 import Control.Applicative ((<$>), (<*>))
+import Control.Monad
 import Text.Parsec.Prim ((<|>), (<?>))
 import Text.Parsec.Combinator
 import Syntax.Abstract
@@ -21,7 +22,7 @@ p'DeclFor :: Parser u Decl
 p'DeclFor = do
     p'Keyword KwFor
     bounds <- p'DeclBounds <?> "type bounds"
-    p'DeclLet >>= addBounds bounds
+    (liftM $ addBounds bounds) p'DeclLet
 
 p'DeclLet :: Parser u Decl
 p'DeclLet = do
@@ -43,9 +44,8 @@ p'Bound = do
     aKind <- p'Kind <?> "kind"
     return (anIdent, aKind)
 
-addBounds :: [(Ident, Kind)] -> Decl -> Parser u Decl
-addBounds bounds (Let [] anIdent aType anExpr) =
-    return $ Let bounds anIdent aType anExpr
+addBounds :: [(Ident, Kind)] -> Decl -> Decl
+addBounds bounds (Let [] anIdent aType anExpr) = Let bounds anIdent aType anExpr
 
 p'Type :: Parser u Type
 p'Type = p'TypeFun
@@ -57,7 +57,7 @@ p'TypeApp :: Parser u Type
 p'TypeApp = p'TypeSolid `chainl1` (o'App TypeApp)
 
 p'TypeSolid :: Parser u Type
-p'TypeSolid = parens p'TypeApp <|> p'TypeId
+p'TypeSolid = parens p'TypeFun <|> p'TypeId
 
 p'TypeId :: Parser u Type
 p'TypeId = TypeId <$> p'Ident
