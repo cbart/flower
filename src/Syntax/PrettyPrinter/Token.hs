@@ -14,6 +14,8 @@ instance Show Symbol where
 
 instance Show Const where
     show (ConstInt integer) = show integer
+    show (ConstFloat double) = show double
+    show (ConstBool bool) = if bool then "true" else "false"
     show (ConstChar char) = show char
     show (ConstString string) = string
 

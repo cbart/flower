@@ -21,10 +21,31 @@ symbol :: Lexer u Symbol
 symbol = applyMapping reservedOp symbolMapping <?> "reserved symbol"
 
 constant :: Lexer u Const
-constant = ConstInt <$> constantInt <?> "literal"
+constant = ConstFloat <$> try constantFloat
+    <|> ConstInt <$> try constantInt
+    <|> ConstBool <$> try constantBool
+    <|> ConstChar <$> constantChar
+    <|> ConstString <$> constantString
+    <?> "constant literal"
 
 constantInt :: Lexer u Integer
 constantInt = (zero >> (hexadecimal <|> octal <|> return 0)) <|> decimal
+
+constantFloat :: Lexer u Double
+constantFloat = T.float tokenLexer
+
+constantBool :: Lexer u Bool
+constantBool = do
+    s <- string "true" <|> string "false"
+    case s of
+        "true" -> return True
+        "false" -> return False
+
+constantChar :: Lexer u Char
+constantChar = T.charLiteral tokenLexer
+
+constantString :: Lexer u String
+constantString = T.stringLiteral tokenLexer
 
 identifier :: Lexer u Ident
 identifier = T.identifier tokenLexer <?> "identifier"

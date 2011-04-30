@@ -21,8 +21,10 @@ data Symbol =
 
 data Const =
     ConstInt Integer
+  | ConstFloat Double
+  | ConstBool Bool
   | ConstChar Char
-  | ConstString [Char]
+  | ConstString String
   deriving (Eq)
 
 type Ident =

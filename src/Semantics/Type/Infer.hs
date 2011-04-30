@@ -114,6 +114,8 @@ infixl 2 <*=*>
 
 constType :: Const -> Type
 constType (ConstInt _) = int
+constType (ConstFloat _) = float
+constType (ConstBool _) = bool
 constType (ConstChar _) = char
 constType (ConstString _) = stream char
 
