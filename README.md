@@ -1,57 +1,53 @@
-# Opis języka
+# Language description
 
 
-**flower** jest językiem czysto funkcyjnym z silnym, jawnym, dynamicznym typowaniem.
+**flower** is a purely functional language with strong static typing.
 
 
-## Dane
+## Data
 
 
-**flower** udostępnia następujące typy podstawowe:
+**flower** provides following primitive data types
 
 
-  * `Int` liczba całkowita, przykłady:
+  * `Int`
 
 
         0 1 42 0x4f 0b0100 0o77
 
 
-  * `Float` liczba zmiennopozycyjna pojedynczej precyzji, przykłady:
+  * `Float`
 
 
         1.0 1.0e-19 0.001 6.022e+23
 
 
-  * `Bool` wartość logiczna o konstruktorach:
+  * `Bool`
 
 
         true : Bool
         false : Bool
 
 
-  * `Char` znak:
+  * `Char`
 
 
         'a' 'x'
 
 
-Dodatkowo dostępne są trzy konstruktory typów (wszystkie określone na dowolnych
-typach rodzaju `*`):
+Additionally there are three type constructors given (all specified on every type - e.g. of kind `*`):
 
 
-  * `Maybe A` określający możliwość braku wyniku.
+  * `Maybe A` which introduces possible lack of result
 
 
-  * `Stream A` określający leniwy strumień danych.
+  * `Stream A` which specifies lazy data stream
 
 
-  * `Pair A B` będący odpowiednikiem iloczynu kartezjańskiego.
+  * `Pair A B` - a cartesian product or a 2-tuple
 
 
-## Funkcje wbudowane
-
-
-Typy prymitywne definiują następujące funkcje:
+## Built-in functions:
 
 
   * `Int`
@@ -96,7 +92,7 @@ Typy prymitywne definiują następujące funkcje:
         lower : Char -> Char
 
 
-Wbudowane konstruktory typów posiadają następujące konstruktory wartości:
+Data constructors for composed types:
 
 
   * `Maybe A`
@@ -126,7 +122,7 @@ Wbudowane konstruktory typów posiadają następujące konstruktory wartości:
         pair : A -> B -> Pair A B
 
 
-Oraz następujące selektory:
+And following selectors/modifiers:
 
 
   * `Maybe A`
@@ -159,35 +155,17 @@ Oraz następujące selektory:
         snd : Pair A B -> B
 
 
-## Typowanie
+## Comments
 
 
-Poza dynamicznym typowaniem podobnym jak w przykładach niżej nie posiada
-(na razie) funkcji polimorficznych (to oznacza, że np. jeżeli istnieje wartość
-o nazwie "plus" określona zarówno na liczbach całkowitych, np. `Int -> Int -> Int`
-oraz na liczbach zmiennopozycyjnych `Float -> Float -> Float` to musi
-być określona również na wszystkich innych typach, tj być w rzeczywistości typu
-`for A : * A -> A -> A`).
+    # End of line comment
+    (# Delimited comment #)
 
 
-W obecnej wersji nie ma możliwości tworzenia własnych typów danych,
-można za to składać typy algebraiczne, np: `Pair (Stream Float) Int`.
+# Syntactic sugar
 
 
-## Komentarze
-
-
-Dostępne są dwa rodzaje komentarzy:
-
-
-    # Komentarz do końca linii
-    (# Komentarz ograniczony #)
-
-
-# Lukier syntaktyczny
-
-
-  * Stałe będące napisami, t.j. wartości typu `Stream Char` mogą być zapisywane tradycyjne:
+  * Not much of that (at the time being), but the following are equal:
 
 
         cons 'A' (cons 'S' (cons 'D' nil))
@@ -195,10 +173,10 @@ Dostępne są dwa rodzaje komentarzy:
         "ASD"
 
 
-# Przykłady
+# Examples
 
 
-## Składanie funkcji
+## Function composition
 
 
     for A : *, B : *, C : *
@@ -206,7 +184,6 @@ Dostępne są dwa rodzaje komentarzy:
       fun g f x ->
         g (f x)
       end
-    ;;
 
 
 ## Fold
@@ -218,13 +195,12 @@ Dostępne są dwa rodzaje komentarzy:
         if empty l then
           acc
         else
-          loop f (f acc (head l)) (tail l)
+          foldLeft f (f acc (head l)) (tail l)
         end
       end
-    ;;
 
 
-Co można zapisać też inaczej:
+Using the `loop` keyword:
 
 
     for E : *, R : *
@@ -238,7 +214,6 @@ Co można zapisać też inaczej:
           end
         end
       end
-    ;;
 
 
 ## QuickSort
@@ -252,9 +227,27 @@ Co można zapisać też inaczej:
             (cons h (quickSort (filter (gt h) t)))
         end
         nil
-    ;;
 
+    for A : *
+    let concat : Stream A -> Stream A -> Stream A =
+      fun l r ->
+        stream
+          fun lh lt ->
+            cons lh (concat lt r)
+          end
+          r
+      end
 
-Różnica jest subtelna - w drugim przypadku `loop`owi brakuje funkcji `f`.
-Jest tak ponieważ loop odnosi się zawsze do syntaktycznie najbliższego `fun`a
-(właściwie będąc po prostu nazwą dla obecnej lambdy).
+    for A : *
+    filter : (A -> Bool) -> Stream A -> Stream A =
+      fun p ->
+        stream
+          fun h t ->
+            if p h then
+              cons h (filter p t)
+            else
+              filter p t
+            end
+          end
+          nil
+      end
