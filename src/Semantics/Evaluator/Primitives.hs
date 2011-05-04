@@ -7,6 +7,7 @@ module Semantics.Evaluator.Primitives
 ) where
 
 
+import Data.Function
 import Data.Either.Unwrap
 import Control.Monad.State
 import Syntax.Token (Ident)
@@ -21,4 +22,4 @@ runEvaluator :: Evaluator a -> Bindings -> Either EvaluationError a
 runEvaluator = evalStateT
 
 bind :: Ident -> Expr -> Type -> [Poly] -> Evaluator ()
-bind i e t b = get >>= put . insert i (e, t, b)
+bind i e t p = modify $ fix . (\b b' -> insert i (e, (t, p, b')) b)
