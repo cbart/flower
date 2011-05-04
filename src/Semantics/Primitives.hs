@@ -1,6 +1,4 @@
-module Semantics.Primitives
-( primitives
-) where
+module Semantics.Primitives (primitives) where
 
 
 import Semantics.Environment

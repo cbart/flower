@@ -10,25 +10,25 @@ import Syntax.Abstract
 
 
 rename :: Monad m => Type -> m Type
-rename t = evalStateT (r t) []
+rename aType = evalStateT (renamer aType) []
 
-r :: Monad m => Type -> StateT [(Ident, Ident)] m Type
-r (TypeId ('$':i)) = do { i' <- ident i ; return $ TypeId i' }
-r t@(TypeId _) = do { return t }
-r (TypeFun t0 t1) = do { t0' <- r t0 ; t1' <- r t1 ; return $ TypeFun t0' t1' }
-r (TypeApp t0 t1) = do { t0' <- r t0 ; t1' <- r t1 ; return $ TypeApp t0' t1' }
+type RenameT = StateT RenameMap
 
-ident :: Monad m => Ident -> StateT [(Ident, Ident)] m Ident
+type RenameMap = [(Ident, Ident)]
+
+renamer :: Monad m => Type -> RenameT m Type
+renamer (TypeId ('$':i)) = do { i' <- ident i ; return $ TypeId i' }
+renamer t@(TypeId _) = do { return t }
+renamer (TypeFun t0 t1) = do { t0' <- renamer t0 ; t1' <- renamer t1 ; return $ TypeFun t0' t1' }
+renamer (TypeApp t0 t1) = do { t0' <- renamer t0 ; t1' <- renamer t1 ; return $ TypeApp t0' t1' }
+
+ident :: Monad m => Ident -> RenameT m Ident
 ident i = gets (lookup i) >>= maybe (next i) return
 
-next :: Monad m => Ident -> StateT [(Ident, Ident)] m Ident
-next i = do
-    m <- get
-    let i' = nextIdent m
-    modify ((i, i'):)
-    return i'
+next :: Monad m => Ident -> RenameT m Ident
+next i = do { m <- get ; let { i' = nextIdent m } ; modify ((i, i'):) ; return i' }
 
-nextIdent :: [(Ident, Ident)] -> Ident
+nextIdent :: RenameMap -> Ident
 nextIdent [] = "A"
 nextIdent m = nextString $ maximumBy lengthAlpha $ map snd m
 
@@ -44,10 +44,5 @@ addBase' i b (ii:is) =
     let (d, m) = (i' + ii) `divMod` b in (d, m:is')
 
 lengthAlpha :: String -> String -> Ordering
-lengthAlpha s1 s2
-    | l1 < l2 = LT
-    | l1 > l2 = GT
-    | otherwise = compare s1 s2
-    where
-        l1 = length s1
-        l2 = length s2
+lengthAlpha s1 s2 | l1 < l2 = LT | l1 > l2 = GT | otherwise = compare s1 s2
+    where { l1 = length s1 ; l2 = length s2 }

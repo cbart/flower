@@ -18,7 +18,7 @@ type InferredType = Type
 type DeclaredType = Type
 
 runTeqT :: Monad m => TeqT m a -> [Poly] -> [(Ident, Type)] -> m a
-runTeqT teq = evalStateT . runReaderT teq
+runTeqT = (evalStateT .) . runReaderT
 
 match :: Monad m => InferredType -> DeclaredType -> TeqT m ()
 match (TypeId ('$':i)) dec = do

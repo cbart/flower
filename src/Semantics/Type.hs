@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeOperators, RankNTypes #-}
-
 module Semantics.Type (check) where
 
 
@@ -19,22 +17,19 @@ import Semantics.Type.Teq
 
 
 check :: Expr -> Type -> [Poly] -> Evaluator Type
-check expr t v = do
-    t' <- typeOf expr
-    t' <: (t, v)
-    return t
+check anExpr decType aPoly = do
+    infType <- typeOf anExpr
+    infType <: (decType, aPoly)
+    return decType
 
 (<:) :: Monad m => InferredType -> (DeclaredType, [Poly]) -> m ()
-inf <: (dec, var) = runTeqT (match inf dec) var []
+infType <: (decType, aPoly) = runTeqT (match infType decType) aPoly []
 
 typeOf :: Expr -> Evaluator Type
 typeOf = infer >=> unify
 
 infer :: Expr -> Evaluator [Condition]
-infer e = do
-    b <- get
-    runInferT inference b (e, env) typeIndex0
-    where env = ([], typeVar typeIndex0, Nothing)
+infer anExpr = do { anEnv <- get ; runInferT inference anEnv anExpr }
 
 unify :: [Condition] -> Evaluator Type
-unify = runUnifyT unification $ TypeId "$0"
+unify = runUnifyT unification $ typeVar typeIndex0

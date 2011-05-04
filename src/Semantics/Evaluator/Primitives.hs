@@ -1,10 +1,4 @@
-module Semantics.Evaluator.Primitives
-( Evaluator
-, runEvaluator
-, get
-, put
-, bind
-) where
+module Semantics.Evaluator.Primitives (Evaluator, runEvaluator, get, put, bind) where
 
 
 import Data.Function
@@ -22,4 +16,5 @@ runEvaluator :: Evaluator a -> Environment -> Either EvaluationError a
 runEvaluator = evalStateT
 
 bind :: Ident -> Expr -> Type -> [Poly] -> Evaluator ()
-bind i e t p = modify $ fix . (\b b' -> insert i (e, (t, p, b')) b)
+bind anIdent anExpr aType aPoly = modify $ fix . (\baseBounds thisBounds ->
+    insert anIdent (anExpr, (aType, aPoly, thisBounds)) baseBounds)

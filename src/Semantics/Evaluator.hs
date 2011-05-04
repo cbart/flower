@@ -1,7 +1,4 @@
-{-# LANGUAGE FlexibleInstances #-}
-module Semantics.Evaluator
-( eval
-) where
+module Semantics.Evaluator (eval) where
 
 
 import Control.Monad

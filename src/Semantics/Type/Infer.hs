@@ -18,22 +18,29 @@ import Semantics.Type.Primitives hiding (maybe)
 -- FIXME Errors
 type InferT = RWST Environment [Condition] ([Task], TypeIndex, Env)
 
-runInferT :: Monad m => InferT m a -> Environment -> Task -> TypeIndex -> m [Condition]
-runInferT inf b t i = do { (_, cs) <- evalRWST inf b ([t], i, snd t) ; return cs }
+runInferT :: Monad m => InferT m a -> Environment -> Expr -> m [Condition]
+runInferT inf anEnv = evalRWST inf anEnv . makeInferState anEnv >=> return . snd
+
+makeInferState :: Environment -> Expr -> ([Task], TypeIndex, Env)
+makeInferState anEnv anExpr = ([(anExpr, baseEnv)], typeIndex0, baseEnv)
+    where baseEnv = ([], typeVar typeIndex0, Nothing)
 
 inference :: Monad m => InferT m ()
 inference = do
-    (ts, i, _) <- get
-    case ts of
+    (tasks, typeIndex, _) <- get
+    case tasks of
         [] -> return ()
-        (e, env):ts -> put (ts, i, env) >> task e >> inference
+        (anExpr, infEnv):otherTasks -> do
+            put (otherTasks, typeIndex, infEnv)
+            task anExpr
+            inference
 
 task :: Monad m => Expr -> InferT m ()
-task (ExprFun args expr) = do
+task (ExprFun args anExpr) = do
     expectedType >>= setLoop
     functionType <- expectedType
     resultType <- foldlM yieldArg functionType args
-    expr <:> resultType
+    anExpr <:> resultType
 task (ExprIf ifExpr thenExpr elseExpr) = do
     ifType <- newType
     ifType <=> bool
@@ -47,21 +54,21 @@ task (ExprApp funExpr argExpr) = do
     funType <=> argType ~> resultType
     funExpr <:> funType
     argExpr <:> argType
-task (ExprIdent ident) = do
-    expectedType <*=*> identType ident
-task (ExprConst const) = do
-    expectedType <*=> constType const
+task (ExprIdent anIdent) = do
+    expectedType <*=*> identType anIdent
+task (ExprConst aConst) = do
+    expectedType <*=> constType aConst
 task ExprLoop = do
     expectedType <*=*> loopType
 
 -- Given type of whole function and an identifier representing function's
 -- argument returns expected type of function result.
 yieldArg :: Monad m => Type -> Ident -> InferT m Type
-yieldArg functionType arg = do
+yieldArg functionType anArg = do
     argType <- newType
     resultType <- newType
     functionType <=> argType ~> resultType
-    assume (arg, argType)
+    assume (anArg, argType)
     return resultType
 
 -- Check the type of an expression given the environment.
@@ -70,11 +77,13 @@ type Task = (Expr, Env)
 -- Yields a task of proving that `e` is of type `t`.
 infixl 2 <:>
 (<:>) :: Monad m => Expr -> Type -> InferT m ()
-e <:> t = modify $ \(ts, i, env@(as, _, l)) -> ((e, (as, t, l)):ts, i, env)
+anExpr <:> aType = modify $
+    \(tasks, typeIndex, infEnv@(assumptions, _, loopType)) ->
+        ((anExpr, (assumptions, aType, loopType)):tasks, typeIndex, infEnv)
 
 infixl 2 <:*>
 (<:*>) :: Monad m => Expr -> InferT m Type -> InferT m ()
-(<:*>) e = (=<<) (e <:>)
+(<:*>) anExpr = (=<<) (anExpr <:>)
 
 -- Set of assumptions, expected type a expression would have
 -- and optionally type of current loop expression.
@@ -84,31 +93,33 @@ type Env = ([Assumption], ExpectedType, Maybe LoopType)
 type ExpectedType = Type
 
 expectedType :: Monad m => InferT m ExpectedType
-expectedType = do { (_, _, (_, t, _)) <- get ; return t }
+expectedType = do { (_, _, (_, expectedType, _)) <- get ; return expectedType }
 
 -- Type of loop expression.
 type LoopType = Type
 
 setLoop :: Monad m => LoopType -> InferT m ()
-setLoop t = modify $ \(ts, i, (as, e, _)) -> (ts, i, (as, e, Just t))
+setLoop t = modify $
+    \(tasks, typeIndex, (assumptions, expectedType, _)) ->
+        (tasks, typeIndex, (assumptions, expectedType, Just t))
 
 loopType :: Monad m => InferT m LoopType
-loopType = do { (_, _, (_, _, l)) <- get ; maybe loopError return l }
+loopType = do { (_, _, (_, _, loopType)) <- get ; maybe loopError return loopType }
 
 -- Require the two types equal.
 type Condition = (Type, Type)
 
 infixl 2 <=>
 (<=>) :: Monad m => Type -> Type -> InferT m ()
-lt <=> rt = tell [(lt, rt)]
+leftType <=> rightType = tell [(leftType, rightType)]
 
 infixl 2 <*=>
 (<*=>) :: Monad m => InferT m Type -> Type -> InferT m ()
-lt <*=> rt = lt >>= (<=> rt)
+(<*=>) leftType = (>>=) leftType . (<=>)
 
 infixl 2 <*=*>
 (<*=*>) :: Monad m => InferT m Type -> InferT m Type -> InferT m ()
-(<*=*>) lt = (=<<) (lt <*=>)
+(<*=*>) leftType = (=<<) (leftType <*=>)
 
 -- Type constructors
 
@@ -120,14 +131,17 @@ constType (ConstChar _) = char
 constType (ConstString _) = stream char
 
 identType :: Monad m => Ident -> InferT m Type
-identType ident = do
-    (_, _, (as, _, _)) <- get
-    let assumedType = lookup ident as
-    boundType <- asks $ lookupType ident
-    maybe (nameError ident) return (assumedType `orElse` boundType)
+identType anIdent = do
+    (_, _, (assumptions, _, _)) <- get
+    let assumedType = lookup anIdent assumptions
+    boundType <- asks $ lookupType anIdent
+    maybe (nameError anIdent) return (assumedType `orElse` boundType)
 
 newType :: Monad m => InferT m Type
-newType = liftM typeVar $ do { (ts, i, env) <- get ; put (ts, i + 1, env) ; return (i + 1) }
+newType = liftM typeVar $ do
+    (tasks, typeIndex, infEnv) <- get
+    put (tasks, typeIndex + 1, infEnv)
+    return (typeIndex + 1)
 
 infixr 3 ~>
 (~>) :: Type -> Type -> Type
@@ -138,4 +152,6 @@ type Assumption = (Ident, Type)
 
 -- Assume that value identified by `id` is of type `t`.
 assume :: Monad m => Assumption -> InferT m ()
-assume a = modify $ \(ts, i, (as, e, l)) -> (ts, i, (a:as, e, l))
+assume anAssumption = modify $
+    \(tasks, typeIndex, (assumptions, expectedType, loopType)) ->
+        (tasks, typeIndex, (anAssumption:assumptions, expectedType, loopType))
