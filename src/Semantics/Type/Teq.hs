@@ -23,11 +23,11 @@ type DeclaredType = Type
 match :: Monad m => InferredType -> DeclaredType -> TeqT m ()
 match (TypeId ('$':i)) dec = do
     m <- gets $ lookup i
-    maybe (modify ((i, dec):)) (\t -> t == dec `or` typeMismatchError t dec) m
+    maybe (modify ((i, dec):)) (\t -> t == dec `or` typeMismatchError dec t) m
 match (TypeFun t00 t01) (TypeFun t10 t11) = do
     match t00 t10
     match t01 t11
 match (TypeApp t00 t01) (TypeApp t10 t11) = do
     match t00 t10
     match t01 t11
-match inf dec = inf == dec `or` typeMismatchError inf dec
+match inf dec = inf == dec `or` typeMismatchError dec inf
