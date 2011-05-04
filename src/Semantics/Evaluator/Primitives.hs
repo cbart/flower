@@ -4,7 +4,6 @@ module Semantics.Evaluator.Primitives
 , get
 , put
 , bind
-, castEither
 ) where
 
 
@@ -21,9 +20,5 @@ type Evaluator a = StateT Bindings (Either EvaluationError) a
 runEvaluator :: Evaluator a -> Bindings -> Either EvaluationError a
 runEvaluator = evalStateT
 
-bind :: Ident -> Expr -> Type -> [(Ident, Kind)] -> Evaluator ()
-bind anIdent anExpr aType bounds =
-    get >>= put . insert anIdent (anExpr, aType, bounds)
-
-castEither :: Either EvaluationError a -> Evaluator a
-castEither e = eitherM e fail return
+bind :: Ident -> Expr -> Type -> [Poly] -> Evaluator ()
+bind i e t b = get >>= put . insert i (e, t, b)

@@ -6,11 +6,13 @@ import Syntax.Token (Const, Ident)
 import Syntax.PrettyPrinter.Token
 
 
+type Poly = (Ident, Kind)
+
 data Prog =
     Prog [Decl]
 
 data Decl =
-    Let [(Ident, Kind)] Ident Type Expr
+    Let [Poly] Ident Type Expr
 
 data Expr =
     ExprFun [Ident] Expr

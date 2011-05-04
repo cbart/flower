@@ -21,8 +21,8 @@ p'Decl = p'DeclFor <|> p'DeclLet <?> "declaration"
 p'DeclFor :: Parser u Decl
 p'DeclFor = do
     p'Keyword KwFor
-    bounds <- p'DeclBounds <?> "type bounds"
-    (liftM $ addBounds bounds) p'DeclLet
+    b <- p'DeclBounds <?> "type bounds"
+    (liftM $ \(Let [] i t e) -> Let b i t e) p'DeclLet
 
 p'DeclLet :: Parser u Decl
 p'DeclLet = do
@@ -34,18 +34,15 @@ p'DeclLet = do
     anExpr <- p'Expr <?> "value"
     return $ Let [] anIdent aType anExpr
 
-p'DeclBounds :: Parser u [(Ident, Kind)]
+p'DeclBounds :: Parser u [Poly]
 p'DeclBounds = p'Bound `sepBy1` p'Symbol SymComma
 
-p'Bound :: Parser u (Ident, Kind)
+p'Bound :: Parser u Poly
 p'Bound = do
     anIdent <- p'Ident <?> "type identifier"
     p'Symbol SymColon
     aKind <- p'Kind <?> "kind"
     return (anIdent, aKind)
-
-addBounds :: [(Ident, Kind)] -> Decl -> Decl
-addBounds bounds (Let [] anIdent aType anExpr) = Let bounds anIdent aType anExpr
 
 p'Type :: Parser u Type
 p'Type = p'TypeFun

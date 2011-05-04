@@ -18,13 +18,13 @@ import Semantics.Type.Rename
 import Semantics.Type.Teq
 
 
-check :: Expr -> Type -> [(Ident, Kind)] -> Evaluator Type
+check :: Expr -> Type -> [Poly] -> Evaluator Type
 check expr t v = do
     t' <- typeOf expr
     t' <: (t, v)
     return t
 
-(<:) :: Monad m => InferredType -> (DeclaredType, [(Ident, Kind)]) -> m ()
+(<:) :: Monad m => InferredType -> (DeclaredType, [Poly]) -> m ()
 inf <: (dec, var) = runTeqT (match inf dec) var []
 
 typeOf :: Expr -> Evaluator Type

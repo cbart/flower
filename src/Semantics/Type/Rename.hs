@@ -27,6 +27,7 @@ next i = do
     let i' = nextIdent m
     modify ((i, i'):)
     return i'
+
 nextIdent :: [(Ident, Ident)] -> Ident
 nextIdent [] = "A"
 nextIdent m = nextString $ maximumBy lengthAlpha $ map snd m

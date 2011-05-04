@@ -11,14 +11,14 @@ import Syntax.Abstract
 import Semantics.Error
 
 
-type TeqT m = ReaderT [(Ident, Kind)] (StateT [(Ident, Type)] m)
-
-runTeqT :: Monad m => TeqT m a -> [(Ident, Kind)] -> [(Ident, Type)] -> m a
-runTeqT teq = evalStateT . runReaderT teq
+type TeqT m = ReaderT [Poly] (StateT [(Ident, Type)] m)
 
 type InferredType = Type
 
 type DeclaredType = Type
+
+runTeqT :: Monad m => TeqT m a -> [Poly] -> [(Ident, Type)] -> m a
+runTeqT teq = evalStateT . runReaderT teq
 
 match :: Monad m => InferredType -> DeclaredType -> TeqT m ()
 match (TypeId ('$':i)) dec = do

@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-module Semantics.Error.Primitives
-where
+module Semantics.Error.Primitives where
 
 
 type EvaluationError = String
