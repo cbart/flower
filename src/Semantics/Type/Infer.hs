@@ -9,16 +9,16 @@ import Control.Monad.Identity
 import Control.Monad.RWS
 import Syntax.Token
 import Syntax.Abstract
-import Semantics.Bindings hiding (lookup)
+import Semantics.Environment hiding (lookup)
 import Semantics.Error
 import Semantics.Error.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 
 
 -- FIXME Errors
-type InferT = RWST Bindings [Condition] ([Task], TypeIndex, Env)
+type InferT = RWST Environment [Condition] ([Task], TypeIndex, Env)
 
-runInferT :: Monad m => InferT m a -> Bindings -> Task -> TypeIndex -> m [Condition]
+runInferT :: Monad m => InferT m a -> Environment -> Task -> TypeIndex -> m [Condition]
 runInferT inf b t i = do { (_, cs) <- evalRWST inf b ([t], i, snd t) ; return cs }
 
 inference :: Monad m => InferT m ()

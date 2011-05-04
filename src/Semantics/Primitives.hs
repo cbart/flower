@@ -3,8 +3,8 @@ module Semantics.Primitives
 ) where
 
 
-import Semantics.Bindings
+import Semantics.Environment
 
 
-primitives :: Bindings
+primitives :: Environment
 primitives = empty

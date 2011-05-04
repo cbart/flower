@@ -9,7 +9,7 @@ import Util.Monad
 import Syntax.Token (Ident)
 import Syntax.Abstract
 import Semantics.Error
-import Semantics.Bindings hiding (lookup)
+import Semantics.Environment hiding (lookup)
 import Semantics.Evaluator.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 import Semantics.Type.Infer
