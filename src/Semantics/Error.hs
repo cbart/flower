@@ -1,10 +1,12 @@
-module Semantics.Error (typeMismatchError, nameError, loopError, runtimeError) where
+module Semantics.Error where
 
 
 import Syntax.Token
 import Syntax.Abstract
 import Syntax.PrettyPrinter.Abstract
 
+
+type EvaluationError = String
 
 typeMismatchError :: Monad m => Type -> Type -> m a
 typeMismatchError expectedType inferredType =

@@ -12,7 +12,6 @@ import Util.Error
 import Util.Monad
 import Syntax.Abstract
 import Semantics.Error
-import Semantics.Error.Primitives
 import Semantics.Type.Infer
 
 

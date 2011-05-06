@@ -7,7 +7,6 @@ import Control.Monad.State
 import Util.Monad
 import Syntax.Token (Ident)
 import Syntax.Abstract
-import Semantics.Error.Primitives
 import Semantics.Error
 import Semantics.Environment hiding (lookup)
 import Semantics.Type.Primitives hiding (maybe)

@@ -11,7 +11,6 @@ import Syntax.Token
 import Syntax.Abstract
 import Semantics.Environment
 import Semantics.Error
-import Semantics.Error.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 
 
