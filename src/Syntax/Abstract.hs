@@ -1,7 +1,7 @@
 module Syntax.Abstract where
 
 
-import Syntax.Token (Const, Ident)
+import Syntax.Token
 import Syntax.PrettyPrinter.Token
 
 
