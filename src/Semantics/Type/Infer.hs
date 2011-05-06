@@ -9,19 +9,19 @@ import Control.Monad.Identity
 import Control.Monad.RWS
 import Syntax.Token
 import Syntax.Abstract
-import Semantics.Environment hiding (lookup)
+import Semantics.Environment
 import Semantics.Error
 import Semantics.Error.Primitives
 import Semantics.Type.Primitives hiding (maybe)
 
 
 -- FIXME Errors
-type InferT = RWST Environment [Condition] ([Task], TypeIndex, Env)
+type InferT = RWST (Environment Expr) [Condition] ([Task], TypeIndex, Env)
 
-runInferT :: Monad m => InferT m a -> Environment -> Expr -> m [Condition]
+runInferT :: Monad m => InferT m a -> Environment Expr -> Expr -> m [Condition]
 runInferT inf anEnv = evalRWST inf anEnv . makeInferState anEnv >=> return . snd
 
-makeInferState :: Environment -> Expr -> ([Task], TypeIndex, Env)
+makeInferState :: Environment Expr -> Expr -> ([Task], TypeIndex, Env)
 makeInferState anEnv anExpr = ([(anExpr, baseEnv)], typeIndex0, baseEnv)
     where baseEnv = ([], typeVar typeIndex0, Nothing)
 
@@ -133,8 +133,8 @@ constType (ConstString _) = stream char
 identType :: Monad m => Ident -> InferT m Type
 identType anIdent = do
     (_, _, (assumptions, _, _)) <- get
-    let assumedType = lookup anIdent assumptions
-    boundType <- asks $ lookupType anIdent
+    let assumedType = Prelude.lookup anIdent assumptions
+    boundType <- asks $ Semantics.Environment.lookup anIdent >=> return . fst >=> return . runType
     maybe (nameError anIdent) return (assumedType `orElse` boundType)
 
 newType :: Monad m => InferT m Type

@@ -9,6 +9,7 @@ import Semantics.Type
 import Semantics.Evaluator.Primitives
 
 
+
 eval :: Prog -> Either EvaluationError ()
 eval prog = do
     runEvaluator (e'Prog prog) primitives

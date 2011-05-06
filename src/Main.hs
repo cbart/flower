@@ -5,13 +5,15 @@ import Prelude hiding (lex)
 import IO (stdin, hGetContents)
 import System (getArgs, getProgName)
 import Control.Monad
+import Control.Monad.Identity
 import Text.Parsec.Error
 import qualified Text.Parsec.Prim as P
 import Syntax.Abstract
 import Syntax.Lexer
 import Syntax.Parser
+import Semantics.Environment
 import Semantics.Primitives
-import Semantics.Evaluator
+import Semantics.Type
 
 
 main :: IO ()
@@ -42,7 +44,7 @@ run fileName sourceCode = do
                 Left error -> putStrLn $ show error
                 Right abstract -> do
                     putStrLn "Parse successful!"
-                    case eval abstract of
+                    case runIdentity $ runTypeCheckT (checkProg abstract) primitives of
                         Left error -> putStrLn $ show error
                         Right _ -> putStrLn "Evaluation successful!"
     where

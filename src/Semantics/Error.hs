@@ -1,4 +1,4 @@
-module Semantics.Error (typeMismatchError, nameError, loopError) where
+module Semantics.Error (typeMismatchError, nameError, loopError, runtimeError) where
 
 
 import Syntax.Token
@@ -15,3 +15,6 @@ nameError aName = fail $ concat ["Could not find name \"", aName, "\"", "!"]
 
 loopError :: Monad m => m a
 loopError = fail $ "Usage of \"loop\" outside of \"fun\" is forbidden!"
+
+runtimeError :: Monad m => m a
+runtimeError = fail $ "RTE"

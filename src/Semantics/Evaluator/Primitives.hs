@@ -10,11 +10,11 @@ import Semantics.Environment
 import Semantics.Error.Primitives
 
 
-type Evaluator a = StateT Environment (Either EvaluationError) a
+type Evaluator c a = StateT (Environment c) (Either EvaluationError) a
 
-runEvaluator :: Evaluator a -> Environment -> Either EvaluationError a
+runEvaluator :: Evaluator c a -> Environment c -> Either EvaluationError a
 runEvaluator = evalStateT
 
-bind :: Ident -> Expr -> Type -> [Poly] -> Evaluator ()
+bind :: Ident -> Expr -> Type -> [Poly] -> Evaluator s ()
 bind anIdent anExpr aType aPoly = modify $ fix . (\baseBounds thisBounds ->
-    insert anIdent (anExpr, (aType, aPoly, thisBounds)) baseBounds)
+    insert anIdent ((aType, aPoly, thisBounds), anExpr) baseBounds)
