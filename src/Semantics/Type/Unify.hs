@@ -14,6 +14,8 @@ import Syntax.Abstract
 import Semantics.Error
 import Semantics.Type.Infer
 
+import Debug.Trace
+
 
 type UnifyT e m = ReaderT Type (StateT [Condition] (ErrorT e m))
 
@@ -33,7 +35,7 @@ getType :: Error e => MonadError e m => Condition -> Type -> UnifyT e m Type
 getType (t1, t2) t0
     | t0 == t1 = return t2
     | t0 == t2 = return t1
-    | otherwise = typeMismatchError t0 t2
+    | otherwise = typeMismatchError t0 (trace "In getType" t2)
 
 condition :: Error e => MonadError e m => Condition -> UnifyT e m ()
 condition (t1@(TypeId ('$':i1)), t2) = do
@@ -44,14 +46,14 @@ condition (t1@(TypeId ('$':i1)), t2) = do
 condition (t1, t2@(TypeId ('$':_))) = do
     t2 <=> t1
 condition (t1@(TypeId _), t2@(TypeId _)) = do
-    t1 == t2 `or` typeMismatchError t1 t2
+    t1 == t2 `or` typeMismatchError t1 (trace "In condition (1)" t2)
 condition (TypeFun t00 t01, TypeFun t10 t11) = do
     t00 <=> t10
     t01 <=> t11
 condition (TypeApp k0 t0, TypeApp k1 t1) = do
     k0 <=> k1  -- FIXME - same kind
     t0 <=> t1
-condition (t0, t1) = typeMismatchError t0 t1
+condition (t0, t1) = t0 == t1 `or` typeMismatchError t0 (trace "In condition (2)" t1)
 
 -- Consider two types equal.
 infix 4 <=>

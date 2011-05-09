@@ -63,6 +63,6 @@ parse filePath tokens = case P.parse parser filePath tokens of
     Left parserError -> fail $ show parserError
 
 checkTypes :: Monad m => FilePath -> Prog -> m ()
-checkTypes _ abstractSyntax = case runIdentity $ runTypeCheckT (checkProg abstractSyntax) primitives of
+checkTypes _ abstractSyntax = case runIdentity $ runTypeCheckT (checkProg abstractSyntax) (primitives empty) of
     Right _ -> return ()
     Left typeCheckError -> fail $ show typeCheckError

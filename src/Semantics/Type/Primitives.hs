@@ -27,6 +27,10 @@ bool = simple "Bool"
 float :: Type
 float = simple "Float"
 
+infixr 3 ~>
+(~>) :: Type -> Type -> Type
+(~>) = TypeFun
+
 stream :: Type -> Type
 stream = complex1 "Stream"
 
@@ -45,3 +49,11 @@ complex1 = TypeApp . TypeId
 complex2 :: Ident -> Type -> Type -> Type
 complex2 ident t1 t2 =
     TypeApp t1 $ TypeApp t2 $ TypeId ident
+
+-- Polymorphic
+
+a :: Type
+a = TypeId "A"
+
+b :: Type
+b = TypeId "B"

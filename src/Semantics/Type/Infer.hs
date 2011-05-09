@@ -154,10 +154,6 @@ newType = liftM typeVar $ do
     put (tasks, typeIndex + 1, infEnv)
     return (typeIndex + 1)
 
-infixr 3 ~>
-(~>) :: Type -> Type -> Type
-(~>) = TypeFun
-
 -- Assume that an identifier is of given type.
 type Assumption = (Ident, Type)
 
