@@ -4,6 +4,7 @@ module Semantics.Type.Infer (InferT, Condition, runInferT, inference) where
 import Data.Foldable (foldlM)
 import Data.Generics (orElse)
 import Control.Applicative ((<$>))
+import Control.Arrow
 import Control.Monad
 import Control.Monad.Identity
 import Control.Monad.RWS
@@ -133,8 +134,19 @@ identType :: Monad m => Ident -> InferT m Type
 identType anIdent = do
     (_, _, (assumptions, _, _)) <- get
     let assumedType = Prelude.lookup anIdent assumptions
-    boundType <- asks $ Semantics.Environment.lookup anIdent >=> return . fst >=> return . runType
+    bound <- asks $ Semantics.Environment.lookup anIdent >=> return . fst >=> return . (runType &&& runPoly)
+    boundType <- case bound of
+        Just (boundType, boundPoly) -> do
+            polyTypes <- mapM (\(t, _) -> newType >>= \n -> return (t, n)) boundPoly
+            let boundtt = poly boundType polyTypes
+            return $ Just boundtt
+        Nothing -> return Nothing
     maybe (nameError anIdent) return (assumedType `orElse` boundType)
+
+poly :: Type -> [(Ident, Type)] -> Type
+poly t@(TypeId anIdent) l = maybe t id $ Prelude.lookup anIdent l
+poly (TypeFun t1 t2) l = TypeFun (poly t1 l) (poly t2 l)
+poly (TypeApp t1 t2) l = TypeApp (poly t1 l) (poly t2 l)
 
 newType :: Monad m => InferT m Type
 newType = liftM typeVar $ do
