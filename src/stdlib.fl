@@ -1,0 +1,80 @@
+for E : *, R : *
+let stream : (E -> Stream E -> R) -> R -> Stream E -> R =
+  fun f b s ->
+    maybe
+      fun h ->
+        maybe (f h) b (tail s)
+      end
+      b
+      (head s)
+  end
+
+for A : *, B : *
+let const : A -> B -> A =
+  fun c x ->
+    c
+  end
+
+for A : *
+let id : A -> A = fun a -> a end
+
+for A : *, B : *, C : *
+let compose : (B -> C) -> (A -> B) -> (A -> C) =
+  fun f g a -> f (g a) end
+
+for A : *, B : *, C : *
+let flip : (A -> B -> C) -> (B -> A -> C) =
+  fun f b a -> f a b end
+
+for A : *, B : *
+let cond : (A -> Bool) -> (A -> B) -> (A -> B) -> (A -> B) =
+  fun p t f a ->
+    if p a then t else f end a
+  end
+
+for E : *, R : *
+let empty : Stream E -> Bool =
+  stream fun h t -> false end true
+
+for E : *
+let single : E -> Stream E = flip cons nil
+
+for E : *, R : *
+let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
+  fun f acc ->
+    stream
+      (compose (foldLeft f) (f acc))
+      acc
+  end
+
+for E : *, R : *
+let foldRight : (E -> R -> R) -> R -> Stream E -> R =
+  fun f acc ->
+    stream
+      fun h ->
+        compose (f h) (foldRight f acc)
+      end
+      acc
+  end
+
+for E : *, R : *
+let map : (E -> R) -> Stream E -> Stream R =
+  compose (flip foldRight nil) (compose cons)
+
+for E : *
+let filter : (E -> Bool) -> Stream E -> Stream E =
+  fun p ->
+    foldRight (cond p cons (const id)) nil
+  end
+
+for E : *
+let concat : Stream E -> Stream E -> Stream E =
+  flip (foldRight cons)
+
+for E : *, R : *
+let flatMap : (E -> Stream R) -> Stream E -> Stream R =
+  compose (flip foldRight nil) (compose concat)
+
+for E : *
+let flatten : Stream (Stream E) -> Stream E =
+  flatMap id
