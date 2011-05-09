@@ -226,7 +226,7 @@ Using the `loop` keyword (which refers to the inner most lambda):
       stream
         fun h t ->
           concat
-            (quickSort (filter (leq h) t))
-            (cons h (quickSort (filter (gt h) t)))
+            (qSort (filter (leq h) t))
+            (cons h (qSort (filter (gt h) t)))
         end
         nil
