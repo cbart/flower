@@ -189,29 +189,30 @@ And following selectors/modifiers:
 ## Fold
 
 
+    for A : *, B : *, C : *
+    let compose : (B -> C) -> (A -> B) -> (A -> C) =
+      fun f g a -> f (g a) end
+
+
     for E : *, R : *
     let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
-      fun f acc l ->
-        if empty l then
+      fun f acc ->
+        stream
+          (compose (foldLeft f) (f acc))
           acc
-        else
-          foldLeft f (f acc (head l)) (tail l)
-        end
       end
 
 
-Using the `loop` keyword:
+Using the `loop` keyword (which refers to the inner most lambda):
 
 
     for E : *, R : *
     let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
       fun f ->
-        fun acc l ->
-          if empty l then
+        fun acc ->
+          stream
+            (compose loop (f acc))
             acc
-          else
-            loop (f acc (head l)) (tail l)
-          end
         end
       end
 
@@ -219,7 +220,9 @@ Using the `loop` keyword:
 ## QuickSort
 
 
-    let quickSort : Stream Int -> Stream Int =
+    # Examples of concat, gt or filter implementations
+    # can be found in `stdlib.fl`
+    let qSort : Stream Int -> Stream Int =
       stream
         fun h t ->
           concat
@@ -227,27 +230,3 @@ Using the `loop` keyword:
             (cons h (quickSort (filter (gt h) t)))
         end
         nil
-
-    for A : *
-    let concat : Stream A -> Stream A -> Stream A =
-      fun l r ->
-        stream
-          fun lh lt ->
-            cons lh (concat lt r)
-          end
-          r
-      end
-
-    for A : *
-    filter : (A -> Bool) -> Stream A -> Stream A =
-      fun p ->
-        stream
-          fun h t ->
-            if p h then
-              cons h (filter p t)
-            else
-              filter p t
-            end
-          end
-          nil
-      end

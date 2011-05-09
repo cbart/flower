@@ -41,10 +41,12 @@ let single : E -> Stream E = flip cons nil
 
 for E : *, R : *
 let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
-  fun f acc ->
-    stream
-      (compose (foldLeft f) (f acc))
-      acc
+  fun f ->
+    fun acc ->
+      stream
+        (compose loop (f acc))
+        acc
+    end
   end
 
 for E : *, R : *
@@ -78,3 +80,15 @@ let flatMap : (E -> Stream R) -> Stream E -> Stream R =
 for E : *
 let flatten : Stream (Stream E) -> Stream E =
   flatMap id
+
+let gt : Int -> Int -> Bool =
+  compose (compose not) leq
+
+let qSort : Stream Int -> Stream Int =
+  stream
+    fun h t ->
+      concat
+        (qSort (filter (leq h) t))
+        (cons h (qSort (filter (gt h) t)))
+    end
+    nil
