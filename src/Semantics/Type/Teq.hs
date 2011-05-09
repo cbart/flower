@@ -30,4 +30,7 @@ match (TypeFun t00 t01) (TypeFun t10 t11) = do
 match (TypeApp t00 t01) (TypeApp t10 t11) = do
     match t00 t10
     match t01 t11
+match inf dec@(TypeId decIdent) = do
+    poly <- asks $ lookup decIdent
+    maybe (typeMismatchError dec inf) (const $ return ()) poly
 match inf dec = inf == dec `or` typeMismatchError dec inf

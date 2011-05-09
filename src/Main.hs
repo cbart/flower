@@ -45,7 +45,7 @@ run filePath sourceCode = do
     checkTypes filePath abstractSyntax
     putStrLn "\nTypes correct!"
     byteCode <- return $ compile abstractSyntax
-    putStrLn "\nBytecode generated!"
+    putStrLn $ "\nBytecode generated! " ++ (show $ size byteCode) ++ " functions"
     main <- maybe (nameError "main") return $ Semantics.Environment.lookup "main" byteCode
     putStrLn "\nMain function found!"
     putStrLn "\nRunning main on \"Dupa\""

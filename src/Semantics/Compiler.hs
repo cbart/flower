@@ -2,6 +2,7 @@ module Semantics.Compiler where
 
 
 import Data.Map
+import Control.Applicative
 import Control.Monad
 import Syntax.Token
 import Syntax.Abstract
@@ -9,10 +10,10 @@ import Semantics.Abstract
 
 
 compile :: Prog -> Map Ident Eval
-compile aProg = compileProg aProg empty
+compile aProg = compileProg aProg Data.Map.empty
 
 compileProg :: Prog -> Map Ident Eval -> Map Ident Eval
-compileProg (Prog declarations) = foldr (.) id $ Prelude.map compileDecl declarations
+compileProg = foldr (flip (.)) id . (<$>) compileDecl . runDecl
 
 compileDecl :: Decl -> Map Ident Eval -> Map Ident Eval
 compileDecl (Let aPoly anIdent aType anExpr) anEnv =
@@ -31,7 +32,7 @@ compileExpr anExpr anEnv = case anExpr of
     ExprFun args exprResult ->
         let gg arg mkEval eim = EvalFun $ \eval -> mkEval (eim . insert arg eval)
             ff applyArgs = compileExpr exprResult $ applyArgs anEnv
-            fun = (foldr gg ff args) (insert "loop" fun)
+            fun = foldr gg ff args $ insert "loop" fun
             in fun
     ExprIf ifExpr thenExpr elseExpr ->
         let ifEval = compileExpr ifExpr anEnv

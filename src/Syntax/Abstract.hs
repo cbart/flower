@@ -8,7 +8,7 @@ import Syntax.PrettyPrinter.Token
 type Poly = (Ident, Kind)
 
 data Prog =
-    Prog [Decl]
+    Prog { runDecl :: [Decl] }
 
 data Decl =
     Let [Poly] Ident Type Expr
