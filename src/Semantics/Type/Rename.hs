@@ -1,4 +1,5 @@
 module Semantics.Type.Rename (rename) where
+-- DEPRECATED
 
 
 import Data.Char

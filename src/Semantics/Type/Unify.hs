@@ -14,61 +14,65 @@ import Syntax.Abstract
 import Semantics.Error
 import Semantics.Type.Infer
 
-import Debug.Trace
 
+type UnifyT m = ReaderT Type (StateT [Condition] m)
 
-type UnifyT e m = ReaderT Type (StateT [Condition] (ErrorT e m))
+runUnifyT :: Monad m => UnifyT m a -> Type -> [Condition] -> m a
+runUnifyT = (.) evalStateT . runReaderT
 
-runUnifyT :: Error e => MonadError e m => UnifyT e m a -> Type -> [Condition] -> m a
-runUnifyT u t0 = runErrorT . evalStateT (runReaderT u t0) >=> liftE
+-- Performs unification on given Unify monad.
+unification :: Monad m => UnifyT m Type
+unification = do
+    conditions <- get
+    case conditions of
+        [] -> return $ TypeId "A"
+        [c] -> ask >>= getType c
+        (c:cs) -> put cs >> condition c >> unification
 
-unification :: Error e => MonadError e m => UnifyT e m Type
-unification = get >>= unify
+-- Tries to retrieve type definition from given condition.
+getType :: Monad m => Condition -> Type -> UnifyT m Type
+getType (leftCondType, rightCondType) aType
+    | aType == leftCondType = return rightCondType
+    | aType == rightCondType = return leftCondType
+    | otherwise = typeMismatchError aType rightCondType
 
-unify :: Error e => MonadError e m => [Condition] -> UnifyT e m Type
-unify [] = return $ TypeId "A"
-unify [c] = ask >>= getType c
-unify (c:cs) = put cs >> condition c >> unification
-
--- Tries to retrieve type definition from given condition
-getType :: Error e => MonadError e m => Condition -> Type -> UnifyT e m Type
-getType (t1, t2) t0
-    | t0 == t1 = return t2
-    | t0 == t2 = return t1
-    | otherwise = typeMismatchError t0 (trace "In getType" t2)
-
-condition :: Error e => MonadError e m => Condition -> UnifyT e m ()
-condition (t1@(TypeId ('$':i1)), t2) = do
-    t0 <- ask
-    if t1 == t0
-        then t1 <=> t2
-        else t1 == t2 `or` t1 <:=> t2
-condition (t1, t2@(TypeId ('$':_))) = do
-    t2 <=> t1
-condition (t1@(TypeId _), t2@(TypeId _)) = do
-    t1 == t2 `or` typeMismatchError t1 (trace "In condition (1)" t2)
-condition (TypeFun t00 t01, TypeFun t10 t11) = do
-    t00 <=> t10
-    t01 <=> t11
-condition (TypeApp k0 t0, TypeApp k1 t1) = do
-    k0 <=> k1  -- FIXME - same kind
-    t0 <=> t1
-condition (t0, t1) = t0 == t1 `or` typeMismatchError t0 (trace "In condition (2)" t1)
+-- Unifies single condition.
+condition :: Monad m => Condition -> UnifyT m ()
+condition p@(leftCondType, rightCondType) = case p of
+    (TypeId ('$':_), _) -> do
+        baseType <- ask
+        if leftCondType == baseType
+            then leftCondType <=> rightCondType
+            else leftCondType == rightCondType `or` leftCondType <:=> rightCondType
+    (_, TypeId ('$':_)) ->
+        rightCondType <=> leftCondType
+    (TypeId _, TypeId _) ->
+        leftCondType == rightCondType `or` typeMismatchError leftCondType rightCondType
+    (TypeFun leftArgType leftResType, TypeFun rightArgType rightResType) -> do
+        leftArgType <=> rightArgType
+        leftResType <=> rightResType
+    (TypeApp leftConstructor leftType, TypeApp rightConstructor rightType) -> do
+        leftConstructor <=> rightConstructor  -- FIXME - check same kind
+        leftType <=> rightType
+    (_, _) -> leftCondType == rightCondType `or` typeMismatchError leftCondType rightCondType
 
 -- Consider two types equal.
 infix 4 <=>
-(<=>) :: Error e => MonadError e m => Type -> Type -> UnifyT e m ()
-t1 <=> t2 = modify (++ [(t1, t2)])
+(<=>) :: Monad m => Type -> Type -> UnifyT m ()
+leftCondType <=> rightCondType = modify (++ [(leftCondType, rightCondType)])
 
 -- Substitute `t1` for `t2` in all equations.
 infix 4 <:=>
-(<:=>) :: Error e => MonadError e m => Type -> Type -> UnifyT e m ()
-t1 <:=> t2 = modify $ map $ twice (t1 `substitute` t2)
+(<:=>) :: Monad m => Type -> Type -> UnifyT m ()
+originalType <:=> substituteType = modify $ map $ twice (originalType `substitute` substituteType)
 
 substitute :: Type -> Type -> Type -> Type
-substitute t1 t2 t = if t1 == t then t2 else
-    case t of
-        (TypeFun t' t'') -> TypeFun (s t') (s t'')
-        (TypeApp k t') -> TypeApp k (s t')
-        _ -> t
-    where s = t1 `substitute` t2
+substitute originalType substituteType processedType =
+    if originalType == processedType
+        then substituteType
+        else
+            case processedType of
+                (TypeFun funType argType) -> TypeFun (follow funType) (follow argType)
+                (TypeApp typeConstructor argType) -> TypeApp typeConstructor $ follow argType
+                _ -> processedType
+    where follow = originalType `substitute` substituteType

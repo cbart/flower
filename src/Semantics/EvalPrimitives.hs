@@ -31,14 +31,18 @@ intImplementation =
     insert "leq" (evalFun2 iLeq) .
     insert "float" (evalFun $ EvalFloat . read . show . runInt)
 
+iQuot :: Eval -> Eval -> Eval
 iQuot _ (EvalInt 0) = mNone
-iQuot i1 i2 = mSome $ EvalInt $ runInt i1 `div` runInt i2
+iQuot i1 i2 = mSome $ EvalInt $ div (runInt i1) (runInt i2)
 
+iMod :: Eval -> Eval -> Eval
 iMod _ (EvalInt 0) = mNone
-iMod i1 i2 = mSome $ EvalInt $ runInt i1 `mod` runInt i2
+iMod i1 i2 = mSome $ EvalInt $ mod (runInt i1) (runInt i2)
 
+iEq :: Eval -> Eval -> Eval
 iEq i1 i2 = EvalBool $ runInt i1 == runInt i2
 
+iLeq :: Eval -> Eval -> Eval
 iLeq i1 i2 = EvalBool $ runInt i1 <= runInt i2
 
 floatImplementation :: Map Ident Eval -> Map Ident Eval
@@ -84,7 +88,7 @@ maybeImplementation =
     insert "none" mNone .
     insert "maybe" (evalFun3 $ mMaybe)
 
-mMaybe (EvalFun f) = runMaybe f
+mMaybe = runMaybe . runFun
 
 mNone = EvalMaybe Nothing
 
@@ -121,16 +125,13 @@ liftN2' opi _ (EvalInt i1) (EvalInt i2) = EvalInt $ opi i1 i2
 liftN2' _ opf (EvalFloat f1) (EvalFloat f2) = EvalFloat $ opf f1 f2
 
 evalFun :: (Eval -> Eval) -> Eval
-evalFun f = EvalFun $ f . irun
+evalFun f = EvalFun $ id . f . irun
 
 evalFun2 :: (Eval -> Eval -> Eval) -> Eval
-evalFun2 f = EvalFun $ \l -> EvalFun $ \r -> f (irun l) (irun r)
+evalFun2 f = EvalFun $ evalFun . f . irun
 
 evalFun3 :: (Eval -> Eval -> Eval -> Eval) -> Eval
-evalFun3 f = EvalFun $ \a1 ->
-    EvalFun $ \a2 ->
-        EvalFun $ \a3 ->
-            f (irun a1) (irun a2) (irun a3)
+evalFun3 f = EvalFun $ evalFun2 . f . irun
 
 irun :: Eval -> Eval
 irun = runIdentity . run

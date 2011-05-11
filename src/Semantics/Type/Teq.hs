@@ -10,8 +10,6 @@ import Syntax.Token
 import Syntax.Abstract
 import Semantics.Error
 
-import Debug.Trace
-
 
 type TeqT m = ReaderT [Poly] (StateT [(Ident, Type)] m)
 
@@ -22,17 +20,25 @@ type DeclaredType = Type
 runTeqT :: Monad m => TeqT m a -> [Poly] -> [(Ident, Type)] -> m a
 runTeqT = (evalStateT .) . runReaderT
 
+-- Checks if given inferred type matches given declared type.
 match :: Monad m => InferredType -> DeclaredType -> TeqT m ()
-match (TypeId ('$':i)) dec = do
-    m <- gets $ lookup i
-    maybe (modify ((i, dec):)) (\t -> t == dec `or` typeMismatchError dec (trace "In match (1)" t)) m
-match (TypeFun t00 t01) (TypeFun t10 t11) = do
-    match t00 t10
-    match t01 t11
-match (TypeApp t00 t01) (TypeApp t10 t11) = do
-    match t00 t10
-    match t01 t11
+match (TypeId ('$':typeIdent)) decType = do
+    prevDecType <- (gets $ lookup typeIdent)
+    let bindTypeVar = modify $ (:) (typeIdent, decType)
+    maybe bindTypeVar (equal decType) prevDecType
+match (TypeFun leftArgType leftResType) (TypeFun rightArgType rightResType) = do
+    leftArgType `match` rightArgType
+    leftResType `match` rightResType
+match (TypeApp leftFunType leftArgType) (TypeApp rightFunType rightArgType) = do
+    leftFunType `match` rightFunType
+    leftArgType `match` rightArgType
 match inf@(TypeId infIdent) dec@(TypeId decIdent) = do
-    poly <- asks $ lookup decIdent
-    maybe (infIdent == decIdent `or` typeMismatchError dec (trace "In match (2)" inf)) (const $ return ()) poly
-match inf dec = inf == dec `or` typeMismatchError dec (trace "In match (3)" inf)
+    polymorphic <- (asks $ lookup decIdent)
+    maybe (equal dec inf) (const $ return ()) polymorphic
+match inf dec = equal dec inf
+
+-- Assure that following types _are equal_
+-- if not, throw an error.
+equal :: Monad m => DeclaredType -> InferredType -> m ()
+equal dec inf =
+    dec == inf `or` typeMismatchError dec inf

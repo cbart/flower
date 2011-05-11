@@ -2,6 +2,7 @@ module Semantics.Compiler where
 
 
 import Data.Map
+import Data.Function
 import Control.Applicative
 import Control.Monad
 import Syntax.Token
@@ -16,39 +17,27 @@ compile = foldr (flip (.)) id . (<$>) compileDecl . runDecl
 
 compileDecl :: Decl -> Map Ident Eval -> Map Ident Eval
 compileDecl (Let aPoly anIdent aType anExpr) anEnv =
-    let anEval = compileExpr anExpr envNew
-        envNew = insert anIdent anEval (anEnv)
+    let anEval = compileExpr anExpr envNew  -- LFP
+        envNew = insert anIdent anEval anEnv  -- another LFP (sic!)
         in envNew
 
-type EvalLoop = Eval
-
-type MIE = Map Ident Eval
-
-type EIM = MIE -> MIE
-
-compileExpr :: Expr -> MIE -> Eval
+compileExpr :: Expr -> Map Ident Eval -> Eval
 compileExpr anExpr anEnv = case anExpr of
     ExprFun args exprResult ->
-        let gg arg mkEval eim = EvalFun $ \eval -> mkEval (eim . insert arg eval)
-            ff applyArgs = compileExpr exprResult $ applyArgs anEnv
-            fun = foldr gg ff args $ insert "loop" fun
-            in fun
+        let processArg arg stepEval = EvalFun . (.) stepEval . (flip (.)) (insert arg) . (.)
+            baseEval applyArgs = compileExpr exprResult $ applyArgs anEnv
+            in fix $ foldr processArg baseEval args . insert "loop"
     ExprIf ifExpr thenExpr elseExpr ->
-        let ifEval = compileExpr ifExpr anEnv
-            thenEval = compileExpr thenExpr anEnv
-            elseEval = compileExpr elseExpr anEnv
-            in EvalApp (EvalFun $ cond thenEval elseEval) $ irun ifEval
-    ExprApp funExpr argExpr ->
-        let funEval = compileExpr funExpr anEnv
-            argEval = compileExpr argExpr anEnv
-            in EvalApp funEval argEval
+        EvalApp (EvalFun $ cond (follow thenExpr) (follow elseExpr)) $ irun (follow ifExpr)
+    ExprApp funExpr argExpr -> EvalApp (follow funExpr) (follow argExpr)
     ExprIdent anIdent -> anEnv ! anIdent
     ExprConst (ConstInt i) -> EvalInt i
     ExprConst (ConstFloat f) -> EvalFloat f
     ExprConst (ConstBool b) -> EvalBool b
     ExprConst (ConstChar c) -> EvalChar c
     ExprConst (ConstString s) -> EvalStream $ EvalChar <$> s
-    ExprLoop -> anEnv ! "loop"
+    ExprLoop -> anEnv ! "loop"  -- FIXME proper runtime error // NO KIDDING - it _has_ to be there...
+    where follow anotherExpr = compileExpr anotherExpr anEnv
 
 cond :: Eval -> Eval -> Eval -> Eval
 cond ifTrueExpr _ (EvalBool True) = ifTrueExpr
