@@ -51,7 +51,9 @@ boolPrimitives =
 charPrimitives :: Environment Expr -> Environment Expr
 charPrimitives =
     s "upper" (char ~> char) .
-    s "lower" (char ~> char)
+    s "lower" (char ~> char) .
+    s "chr" (int ~> char) .
+    s "ord" (char ~> int)
 
 maybePrimitives :: Environment Expr -> Environment Expr
 maybePrimitives =

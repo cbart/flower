@@ -1,4 +1,4 @@
-module Util.Arrow where
+module Util.Arrow (twice) where
 
 
 import Control.Arrow

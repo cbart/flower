@@ -2,6 +2,7 @@ module Main where
 
 
 import Prelude hiding (lex)
+import Data.Map
 import IO (stdin, hGetContents)
 import System (getArgs, getProgName)
 import Control.Monad
@@ -17,6 +18,7 @@ import Semantics.Primitives
 import Semantics.Type
 import Semantics.Compiler
 import Semantics.Runner
+import Semantics.EvalPrimitives
 
 
 main :: IO ()
@@ -44,12 +46,12 @@ run filePath sourceCode = do
     putStrLn "\nParse correct!"
     checkTypes filePath abstractSyntax
     putStrLn "\nTypes correct!"
-    byteCode <- return $ compile abstractSyntax
+    byteCode <- return $ compile abstractSyntax (implementation Data.Map.empty)
     putStrLn $ "\nBytecode generated! " ++ (show $ size byteCode) ++ " functions"
     main <- maybe (nameError "main") return $ Semantics.Environment.lookup "main" byteCode
     putStrLn "\nMain function found!"
     putStrLn "\nRunning main on \"Dupa\""
-    result <- runString main "Dupa"
+    result <- runString main "Litwo ojczyzno moja Ty jesteś jak zdrowie! Ile Cię trzeba cenić ten tylko się dowie kto Cię stracił!"
     putStrLn result
 
 lex :: Monad m => FilePath -> String -> m [TokenPos]

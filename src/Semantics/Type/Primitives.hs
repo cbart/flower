@@ -47,8 +47,8 @@ complex1 :: Ident -> Type -> Type
 complex1 = TypeApp . TypeId
 
 complex2 :: Ident -> Type -> Type -> Type
-complex2 ident t1 t2 =
-    TypeApp t1 $ TypeApp t2 $ TypeId ident
+complex2 ident =
+    TypeApp . TypeApp (TypeId ident)
 
 -- Polymorphic
 

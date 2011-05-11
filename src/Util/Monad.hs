@@ -1,6 +1,4 @@
-module Util.Monad
-( or
-) where
+module Util.Monad (or) where
 
 
 import Prelude hiding (or)
