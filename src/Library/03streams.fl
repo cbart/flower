@@ -1,0 +1,93 @@
+# Streams library
+
+# Basic stream mannipulator.
+# Runs it's first argument with head and tail of the stream
+# when it's not empty. Otherwise returns second argument.
+for E : *, R : *
+let stream : (E -> Stream E -> R) -> R -> Stream E -> R =
+  fun f b s ->
+    maybe
+      fun h ->
+        maybe (f h) b (tail s)
+      end
+      b
+      (head s)
+  end
+
+# Indicates if stream is empty.
+for E : *, R : *
+let empty : Stream E -> Bool =
+  stream fun h t -> false end true
+
+# Creates a single element stream.
+for E : *
+let single : E -> Stream E = flip cons nil
+
+# Folds the stream from left to right.
+for E : *, R : *
+let foldLeft : (R -> E -> R) -> R -> Stream E -> R =
+  fun f ->
+    fun acc ->
+      stream
+        (compose loop (f acc))
+        acc
+    end
+  end
+
+# Folds the stream from right to left.
+for E : *, R : *
+let foldRight : (E -> R -> R) -> R -> Stream E -> R =
+  fun f acc ->
+    stream
+      fun h ->
+        compose (f h) (foldRight f acc)
+      end
+      acc
+  end
+
+# Maps stream with a function.
+for E : *, R : *
+let map : (E -> R) -> Stream E -> Stream R =
+  compose (flip foldRight nil) (compose cons)
+
+# Filters stream by given predicate.
+for E : *
+let filter : (E -> Bool) -> Stream E -> Stream E =
+  fun p ->
+    foldRight (cond p cons (const id)) nil
+  end
+
+# Concatenates two streams.
+for E : *
+let concat : Stream E -> Stream E -> Stream E =
+  flip (foldRight cons)
+
+# Maps the stream and flattens the result.
+for E : *, R : *
+let flatMap : (E -> Stream R) -> Stream E -> Stream R =
+  compose (flip foldRight nil) (compose concat)
+
+# Flattens joins streams.
+for E : *
+let flatten : Stream (Stream E) -> Stream E =
+  flatMap id
+
+# Takes `i` elements from stream. Returns none if
+# the stream is shorter than `i` elements.
+let take : Int -> Stream Int -> Maybe (Stream Int) =
+  fun i ->
+    if eq i 0 then
+      const (some nil)
+    else
+      stream
+        fun h t ->
+          maybe (compose some (cons h)) none (take (sub i 1) t)
+        end
+        none
+    end
+  end
+
+# Reverses the stream.
+for E : *
+let reverse : Stream E -> Stream E =
+  foldLeft (flip cons) nil

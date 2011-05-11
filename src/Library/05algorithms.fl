@@ -1,0 +1,8 @@
+let qSort : Stream Int -> Stream Int =
+  stream
+    fun h t ->
+      concat
+        (qSort (filter (leq h) t))
+        (cons h (qSort (filter (gt h) t)))
+    end
+    nil

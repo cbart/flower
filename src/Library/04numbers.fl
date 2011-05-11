@@ -1,0 +1,62 @@
+# Checks if the first argument
+# is strictly greater than the second.
+let gt : Int -> Int -> Bool =
+  compose (compose not) leq
+
+# Checks if first argument is strictly
+# less than the second.
+let lt : Int -> Int -> Bool =
+  fun a b ->
+    and (leq a b) (not (eq a b))
+  end
+
+# Checks if first argument is greater
+# or equal than the second one.
+let geq : Int -> Int -> Bool =
+  compose (compose not) lt
+
+# Returns elements predcessor.
+let pred : Int -> Int = flip sub 1
+
+# Returns elements successor.
+let succ : Int -> Int = sum 1
+
+# Returns max of two arguments.
+let max : Int -> Int -> Int =
+  fun a b ->
+    if leq a b then
+      b
+    else
+      a
+    end
+  end
+
+# Returns min of two arguments.
+let min : Int -> Int -> Int =
+  fun a b ->
+    if leq a b then
+      a
+    else
+      b
+    end
+  end
+
+# Returns sign of given value
+let sgn : Int -> Int =
+  fun i ->
+    if eq i 0 then
+      0
+    else
+      if gt i 0 then
+        1
+      else
+        neg 1
+      end
+    end
+  end
+
+# Returns absolute of given value.
+let abs : Int -> Int =
+  fun i ->
+    mul (sgn i) i
+  end

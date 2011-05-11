@@ -1,0 +1,36 @@
+## Functions library.
+
+## Constant function.
+for A : *, B : *
+let const : A -> B -> A =
+  fun c x ->
+    c
+  end
+
+## Identity.
+for A : *
+let id : A -> A = fun a -> a end
+
+## Composing functions.
+for A : *, B : *, C : *
+let compose : (B -> C) -> (A -> B) -> (A -> C) =
+  fun f g a -> f (g a) end
+
+## Flips function's arguments.
+for A : *, B : *, C : *
+let flip : (A -> B -> C) -> (B -> A -> C) =
+  fun f b a -> f a b end
+
+## Computes least fixed point of a function.
+#for A : *
+#let fix : (A -> A) -> A = fun f -> f (loop f) end
+
+for A : *, B : *, C : *
+let curry : (Pair A B -> C) -> A -> B -> C =
+  compose (flip compose pair) compose
+
+for A : *, B : *, C : *
+let uncurry : (A -> B -> C) -> Pair A B -> C =
+  fun f p ->
+    f (fst p) (snd p)
+  end

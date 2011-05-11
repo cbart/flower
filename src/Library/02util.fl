@@ -1,0 +1,5 @@
+for A : *, B : *
+let cond : (A -> Bool) -> (A -> B) -> (A -> B) -> (A -> B) =
+  fun p t f a ->
+    if p a then t else f end a
+  end
