@@ -2,7 +2,7 @@ HC=ghc
 HC_OPTS=-cpp $(EXTRA_HC_OPTS)
 
 all:
-	$(HC) --make -i. -o ifl Main.hs
+	$(HC) --make -i. -o fl Main.hs
 
 clean:
 	(cd Syntax; make clean)

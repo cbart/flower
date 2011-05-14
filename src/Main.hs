@@ -2,16 +2,20 @@ module Main where
 
 
 import Prelude hiding (lex)
+import Data.List
 import Data.Map
 import IO (stdin, hGetContents)
 import System (getArgs, getProgName)
+import System.Directory
 import Control.Monad
 import Control.Monad.Identity
 import Text.Parsec.Error
 import qualified Text.Parsec.Prim as P
+import Syntax.Token
 import Syntax.Abstract
 import Syntax.Lexer
 import Syntax.Parser
+import Semantics.Abstract
 import Semantics.Error
 import Semantics.Environment
 import Semantics.Primitives
@@ -25,34 +29,42 @@ main :: IO ()
 main = do
     args <- getArgs
     case args of
-        [] -> hGetContents stdin >>= Main.run "stdin"
-        fileNames -> mapM_ runFile fileNames
+        [] -> usage
+        _ -> do
+            source <- library args
+            Main.run (unwords args) (unlines source)
 
-runFile :: FilePath -> IO ()
-runFile filePath = do
-    putStrLn filePath
-    fileContent <- readFile filePath
-    Main.run filePath fileContent
+usage :: IO ()
+usage = do
+    putStrLn "Usage: fl fileName1 [fileName2 ...]"
+
+library :: [FilePath] -> IO [String]
+library files = do
+    let libraryPath = "./Library/"
+    fileNames <- getDirectoryContents libraryPath
+    let flowerFileNames = sort $ Prelude.filter isFlower fileNames
+    let absoluteFileNames = Prelude.map (libraryPath ++) flowerFileNames
+    forM (absoluteFileNames ++ files) readFile
+
+isFlower :: FilePath -> Bool
+isFlower = isSuffixOf ".fl"
 
 run :: FilePath -> String -> IO ()
 run filePath sourceCode = do
-    putStrLn ">FLOWER<"
-    putStrLn "File content:"
-    putStrLn $ show sourceCode
     tokens <- lex filePath sourceCode
-    putStrLn "\nTokens:"
-    putStrLn $ show tokens
     abstractSyntax <- parse filePath tokens
-    putStrLn "\nParse correct!"
     checkTypes filePath abstractSyntax
-    putStrLn "\nTypes correct!"
     byteCode <- return $ compile abstractSyntax (implementation Data.Map.empty)
-    putStrLn $ "\nBytecode generated! " ++ (show $ size byteCode) ++ " functions"
-    main <- maybe (nameError "main") return $ Semantics.Environment.lookup "main" byteCode
-    putStrLn "\nMain function found!"
-    putStrLn "\nRunning main on \"Dupa\""
-    result <- runString main "Litwo ojczyzno moja Ty jesteś jak zdrowie! Ile Cię trzeba cenić ten tylko się dowie kto Cię stracił!"
-    putStrLn result
+    main <- get "main" byteCode
+    runInOut main
+
+get :: Monad m => Ident -> Map Ident Eval -> m Eval
+get anIdent =
+    maybe (nameError anIdent) return . Semantics.Environment.lookup anIdent
+
+runInOut :: Eval -> IO ()
+runInOut flowerFunction =
+    getContents >>= runString flowerFunction >>= putStrLn
 
 lex :: Monad m => FilePath -> String -> m [TokenPos]
 lex filePath sourceCode = case P.parse lexer filePath sourceCode of

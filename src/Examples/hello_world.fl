@@ -1,0 +1,2 @@
+let main : Stream Char -> Stream Char =
+  const "Hello World"
