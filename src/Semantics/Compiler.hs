@@ -3,7 +3,7 @@ module Semantics.Compiler where
 
 import Data.Map
 import Data.Function
-import Control.Applicative
+import Control.Applicative hiding (empty)
 import Control.Monad
 import Syntax.Token
 import Syntax.Abstract
@@ -11,9 +11,12 @@ import Semantics.Abstract
 import Semantics.EvalPrimitives
 import Debug.Trace
 
+runCompiler :: Monad m => (Map Ident Eval -> Map Ident Eval) -> FilePath -> Prog -> m (Map Ident Eval)
+runCompiler library _ =
+    return . flip compileProg (library empty)
 
-compile :: Prog -> Map Ident Eval -> Map Ident Eval
-compile = foldr (flip (.)) id . (<$>) compileDecl . runDecl
+compileProg :: Prog -> Map Ident Eval -> Map Ident Eval
+compileProg = foldr (flip (.)) id . (<$>) compileDecl . runDecl
 
 compileDecl :: Decl -> Map Ident Eval -> Map Ident Eval
 compileDecl (Let aPoly anIdent aType anExpr) anEnv =

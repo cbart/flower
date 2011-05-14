@@ -4,6 +4,7 @@ module Semantics.Type where
 import Control.Monad
 import Control.Monad.Error
 import Control.Monad.State
+import Util.Error
 import Util.Monad
 import Syntax.Token (Ident)
 import Syntax.Abstract
@@ -15,10 +16,14 @@ import Semantics.Type.Unify
 import Semantics.Type.Rename
 import Semantics.Type.Teq
 
+runTypeCheck :: Monad m => Environment Expr -> FilePath -> Prog -> m Prog
+runTypeCheck anEnv _ aProg =
+    runTypeCheckT (checkProg aProg) anEnv >>= liftE >> return aProg
+
 type TypeCheckT m = StateT (Environment Expr) (ErrorT EvaluationError m)
 
 runTypeCheckT :: Monad m => TypeCheckT m a -> Environment Expr -> m (Either EvaluationError a)
-runTypeCheckT aTypeCheck anEnv = runErrorT (evalStateT aTypeCheck anEnv)
+runTypeCheckT = (runErrorT .) . evalStateT
 
 checkProg :: Monad m => Prog -> TypeCheckT m ()
 checkProg (Prog declarations) = forM_ declarations checkDeclaration

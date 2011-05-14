@@ -1,19 +1,20 @@
-module Syntax.Parser
-( parser
-) where
+module Syntax.Parser (runParser) where
 
 
 import Control.Applicative ((<$>), (<*>))
 import Control.Monad
-import Text.Parsec.Prim ((<|>), (<?>))
+import Text.Parsec.Prim ((<|>), (<?>), runP)
 import Text.Parsec.Combinator
+import Util.Error
 import Syntax.Abstract
 import Syntax.Token
+import Syntax.Lexer
 import Syntax.Parser.Primitives
 
 
-parser :: Parser u Prog
-parser = Prog <$> many1 p'Decl
+runParser :: Monad m => FilePath -> [TokenPos] -> m Prog
+runParser filePath tokens =
+    liftE $ runP (Prog <$> many1 p'Decl) () filePath tokens
 
 p'Decl :: Parser u Decl
 p'Decl = p'DeclFor <|> p'DeclLet <?> "declaration"
