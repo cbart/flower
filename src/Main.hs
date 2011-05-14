@@ -12,7 +12,7 @@ import Syntax.Lexer
 import Syntax.Parser
 import Semantics.Abstract
 import Semantics.Error
-import Semantics.Environment hiding (map, filter)
+import Semantics.Type.Env hiding (map, filter)
 import Semantics.Primitives
 import Semantics.Type
 import Semantics.Compiler

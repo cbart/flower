@@ -10,18 +10,18 @@ import Control.Monad.Identity
 import Control.Monad.RWS
 import Syntax.Token
 import Syntax.Abstract
-import Semantics.Environment
 import Semantics.Error
+import Semantics.Type.Env
 import Semantics.Type.Primitives hiding (maybe)
 
 
 -- FIXME Errors
-type InferT = RWST (Environment Expr) [Condition] ([Task], TypeIndex, Env)
+type InferT = RWST TypeEnv [Condition] ([Task], TypeIndex, Env)
 
-runInferT :: Monad m => InferT m a -> Environment Expr -> Expr -> m [Condition]
+runInferT :: Monad m => InferT m a -> TypeEnv -> Expr -> m [Condition]
 runInferT inf anEnv = evalRWST inf anEnv . makeInferState anEnv >=> return . snd
 
-makeInferState :: Environment Expr -> Expr -> ([Task], TypeIndex, Env)
+makeInferState :: TypeEnv -> Expr -> ([Task], TypeIndex, Env)
 makeInferState anEnv anExpr = ([(anExpr, baseEnv)], typeIndex0, baseEnv)
     where baseEnv = ([], typeVar typeIndex0, Nothing)
 
@@ -134,7 +134,7 @@ identType :: Monad m => Ident -> InferT m Type
 identType anIdent = do
     (_, _, (assumptions, _, _)) <- get
     let assumedType = Prelude.lookup anIdent assumptions
-    bound <- asks $ Semantics.Environment.lookup anIdent >=> return . fst >=> return . (runType &&& runPoly)
+    bound <- asks $ Semantics.Type.Env.lookup anIdent >=> return . (runType &&& runPoly)
     boundType <- case bound of
         Just (boundType, boundPoly) -> do
             polyTypes <- mapM (\(t, _) -> newType >>= \n -> return (t, n)) boundPoly
